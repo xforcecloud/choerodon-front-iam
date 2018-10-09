@@ -8,7 +8,7 @@ export default class Guide extends Component {
       <div className="c7n-iam-dashboard-document">
         <ul>
           <li>
-            <a target="choerodon" href="http://choerodon.io/zh/docs/quick-start/admin/project/">创建一个项目</a>
+            <a target="choerodon" href="http://choerodon.io/zh/docs/quick-start/project/">创建一个项目</a>
           </li>
           <li>
             <a target="choerodon" href="http://choerodon.io/zh/docs/quick-start/nginx-demo/">创建一个nginx示例</a>
