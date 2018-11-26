@@ -2,6 +2,7 @@
 # site
 "iam.organization": "组织管理"
 "iam.menu-management": "菜单配置"
+"iam.system-setting": "系统配置"
 "iam.role-label": "角色标签"
 "iam.role": "角色管理"
 "iam.member-role-global": "平台角色分配"
@@ -22,12 +23,16 @@
 "global-transaction.saga-instance": "事务实例"
 
 "msg-center": "消息中心"
+"msg-center.send-setting": "发送设置"
 "msg-center.mail-template": "邮件模板"
-"msg-center.sms-template": "短信模板"
+"msg-center.inmail-template": "站内信模板"
 "msg-center.mail-setting": "邮箱配置"
-"msg-center.sms-setting": "短信配置"
 "msg-center.msg-record": "消息记录"
 
+"task-dispatch": "任务调度"
+"task-dispatch.task-detail": "任务明细"
+"task-dispatch.execution-record": "执行记录"
+"task-dispatch.task-classname": "可执行程序"
 
 "rentsetting": 组织设置
 # organization
@@ -39,10 +44,25 @@
 "rentsetting.password-policy": "密码策略"
 "rentsetting.mail-template-organization": "邮件模板"
 
+"msg-center-organization": "消息中心"
+"msg-center-organization.send-setting-organization": "发送设置"
+"msg-center-organization.mail-template-organization": "邮件模板"
+"msg-center-organization.msg-record-organization": "消息记录"
+
+"task-dispatch-organization": "任务调度"
+"task-dispatch-organization.task-detail-organization": "任务明细"
+"task-dispatch-organization.execution-record-organization": "执行记录"
+"task-dispatch-organization.task-classname-organization": "可执行程序"
+
 "prosetting": 项目设置
 # project
 "prosetting.proManage": "项目信息"
 "prosetting.member-role-project": "项目角色分配"
+
+"task-dispatch-project": "任务调度"
+"task-dispatch-project.task-detail-project": "任务明细"
+"task-dispatch-project.execution-record-project": "执行记录"
+"task-dispatch-project.task-classname-project": "可执行程序"
 
 "usercenter": 个人中心
 # user
@@ -50,3 +70,5 @@
 "usercenter.password": "修改密码"
 "usercenter.organization-info": "组织信息"
 "usercenter.project-info": "项目信息"
+"usercenter.user-msg": "消息通知"
+"usercenter.receive-setting": "接收设置"

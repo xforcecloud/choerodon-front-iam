@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import { toJS } from 'mobx';
 import { inject, observer } from 'mobx-react';
-import { Button, Form, Icon, IconSelect, Input, Modal, Select, Table, Tabs, Tooltip } from 'choerodon-ui';
+import { Button, Form, Icon, IconSelect, Input, Modal, Select, Table, Tooltip, Radio } from 'choerodon-ui';
 import { Content, Header, Page, Permission } from 'choerodon-front-boot';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import './DashboardSetting.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
+import RoleStore from '../../../stores/global/role/RoleStore';
+import StatusTag from '../../../components/statusTag';
 
+const RadioGroup = Radio.Group;
 const { Sidebar } = Modal;
+const { Option } = Select;
 
 const intlPrefix = 'global.dashboard-setting';
 const FormItem = Form.Item;
@@ -36,6 +41,21 @@ class DashboardSetting extends Component {
     this.fetchData();
   }
 
+  handleDisable = (record) => {
+    const { intl, DashboardSettingStore } = this.props;
+    DashboardSettingStore.dashboardDisable(record)
+      .then(() => {
+        Choerodon.prompt(intl.formatMessage({ id: record.enabled ? 'disable.success' : 'enable.success' }));
+      })
+      .catch(Choerodon.handleResponseError);
+  };
+
+  handleRoleClick = () => {
+    const { DashboardSettingStore } = this.props;
+    DashboardSettingStore.setNeedUpdateRoles(true);
+    DashboardSettingStore.setNeedRoles(!DashboardSettingStore.needRoles);
+  };
+
   handleRefresh = () => {
     this.props.DashboardSettingStore.refresh();
   };
@@ -43,8 +63,12 @@ class DashboardSetting extends Component {
   handleOk = () => {
     const { form, intl, DashboardStore, DashboardSettingStore } = this.props;
     form.validateFields((error, values, modify) => {
+      Object.keys(values).forEach((key) => {
+        // 去除form提交的数据中的全部前后空格
+        if (typeof values[key] === 'string') values[key] = values[key].trim();
+      });
       if (!error) {
-        if (modify) {
+        if (modify || DashboardSettingStore.needUpdateRoles) {
           DashboardSettingStore.updateData(values).then((data) => {
             if (DashboardStore) {
               DashboardStore.updateCachedData(data);
@@ -67,14 +91,24 @@ class DashboardSetting extends Component {
   };
 
   fetchData(pagination, filters, sort, params) {
+    const { DashboardSettingStore } = this.props;
     this.props.DashboardSettingStore.loadData(pagination, filters, sort, params);
+    RoleStore.loadRole({ pageSize: 999 }, {}, {}).then((data) => {
+      data.content.forEach((v) => {
+        DashboardSettingStore.roleMap.set(v.id, v);
+      });
+    });
   }
 
   editCard(record) {
     const { DashboardSettingStore, form } = this.props;
-    form.resetFields();
+    DashboardSettingStore.setNeedRoles(record.needRoles);
+    RoleStore.loadRole({ pageSize: 999 }, {}, { level: record.level }).then((data) => {
+      RoleStore.setRoles(data.content);
+    });
     DashboardSettingStore.setEditData(record);
     DashboardSettingStore.showSideBar();
+    form.resetFields();
     setTimeout(() => {
       this.editFocusInput.input.focus();
     }, 10);
@@ -87,36 +121,38 @@ class DashboardSetting extends Component {
         title: <FormattedMessage id={`${intlPrefix}.name`} />,
         dataIndex: 'name',
         key: 'name',
+        width: '20%',
         filters: [],
         filteredValue: filters.name || [],
-        sorter: true,
-        sortOrder: columnKey === 'name' && order,
-      },
-      {
+        render: text => (
+          <MouseOverWrapper text={text} width={0.1}>
+            {text}
+          </MouseOverWrapper>
+        ),
+      }, {
+        title: <FormattedMessage id={`${intlPrefix}.namespace`} />,
+        dataIndex: 'namespace',
+        key: 'namespace',
+        width: '15%',
+      }, {
         title: <FormattedMessage id={`${intlPrefix}.code`} />,
         dataIndex: 'code',
         key: 'code',
+        width: '15%',
         filters: [],
         filteredValue: filters.code || [],
-        sorter: true,
-        sortOrder: columnKey === 'code' && order,
-        render: (text, { namespace }) => `${namespace}-${text}`,
       },
       {
         title: <FormattedMessage id={`${intlPrefix}.card.title`} />,
         dataIndex: 'title',
         key: 'title',
-        filters: [],
-        filteredValue: filters.title || [],
-        sorter: true,
-        sortOrder: columnKey === 'title' && order,
-      },
-      {
-        title: <FormattedMessage id={`${intlPrefix}.icon`} />,
-        dataIndex: 'icon',
-        key: 'icon',
-        render: text => (
-          <Icon type={text} style={{ fontSize: 20 }} />
+        render: (text, record) => (
+          <div>
+            <Icon type={record.icon} style={{ fontSize: 20, marginRight: '6px' }} />
+            <MouseOverWrapper text={text} width={0.1} style={{ display: 'inline' }}>
+              {text}
+            </MouseOverWrapper>
+          </div>
         ),
       },
       {
@@ -136,11 +172,23 @@ class DashboardSetting extends Component {
           },
         ],
         filteredValue: filters.level || [],
-        sorter: true,
-        sortOrder: columnKey === 'level' && order,
         render: text => (
           <FormattedMessage id={`${intlPrefix}.level.${text}`} />
         ),
+      },
+      {
+        title: <FormattedMessage id="status" />,
+        dataIndex: 'enabled',
+        key: 'enabled',
+        filters: [{
+          text: intl.formatMessage({ id: 'enable' }),
+          value: 'true',
+        }, {
+          text: intl.formatMessage({ id: 'disable' }),
+          value: 'false',
+        }],
+        filteredValue: filters.enabled || [],
+        render: enabled => (<StatusTag mode="icon" name={intl.formatMessage({ id: enabled ? 'enable' : 'disable' })} colorCode={enabled ? 'COMPLETED' : 'DISABLE'} />),
       },
       {
         title: '',
@@ -160,16 +208,34 @@ class DashboardSetting extends Component {
                 onClick={() => this.editCard(record)}
               />
             </Tooltip>
+            <Tooltip
+              title={<FormattedMessage id={record.enabled ? 'disable' : 'enable'} />}
+              placement="bottom"
+            >
+              <Button
+                size="small"
+                icon={record.enabled ? 'remove_circle_outline' : 'finished'}
+                shape="circle"
+                onClick={() => this.handleDisable(record)}
+              />
+            </Tooltip>
           </Permission>
         ),
       },
     ];
   }
 
+  renderRoleSelect = () => {
+    const roles = RoleStore.getRoles;
+    return roles.map(item =>
+      <Option key={item.id} value={item.id}>{item.name}</Option>);
+  };
+
   renderForm() {
+    const roles = RoleStore.getRoles;
     const {
       form: { getFieldDecorator }, intl,
-      DashboardSettingStore: { editData: { code, name, level, icon, title, namespace } },
+      DashboardSettingStore: { editData: { code, name, level, icon, title, namespace, roleIds }, needRoles },
     } = this.props;
     return (
       <Content
@@ -218,6 +284,8 @@ class DashboardSetting extends Component {
                   ref={(e) => {
                     this.editFocusInput = e;
                   }}
+                  maxLength={32}
+                  showLengthInfo={false}
                 />,
               )
             }
@@ -238,6 +306,8 @@ class DashboardSetting extends Component {
                   autoComplete="off"
                   label={<FormattedMessage id={`${intlPrefix}.card.title`} />}
                   style={{ width: inputWidth }}
+                  maxLength={32}
+                  showLengthInfo={false}
                 />,
               )
             }
@@ -249,11 +319,39 @@ class DashboardSetting extends Component {
               })(
                 <IconSelect
                   label={<FormattedMessage id={`${intlPrefix}.icon`} />}
+                  getPopupContainer={() => document.getElementsByClassName('ant-modal-body')[document.getElementsByClassName('ant-modal-body').length - 1]}
                   style={{ width: inputWidth }}
                   showArrow
                 />,
               )
             }
+          </FormItem>
+          <FormItem {...formItemLayout}>
+            <RadioGroup onChange={this.handleRoleClick} value={needRoles}>
+              <Radio value><FormattedMessage id={`${intlPrefix}.open-role`} /></Radio>
+              <Radio value={false}><FormattedMessage id={`${intlPrefix}.close-role`} /></Radio>
+            </RadioGroup>
+          </FormItem>
+          <FormItem
+            {...formItemLayout}
+          >
+            {getFieldDecorator('roleIds', {
+              valuePropName: 'value',
+              initialValue: roleIds && roleIds.slice(),
+            })(
+              <Select
+                mode="multiple"
+                label={<FormattedMessage id={`${intlPrefix}.role`} />}
+                size="default"
+                getPopupContainer={() => document.getElementsByClassName('ant-modal-body')[document.getElementsByClassName('ant-modal-body').length - 1]}
+                style={{
+                  width: '512px',
+                  display: needRoles ? 'inline-block' : 'none',
+                }}
+              >
+                {this.renderRoleSelect()}
+              </Select>,
+            )}
           </FormItem>
         </Form>
       </Content>
@@ -261,7 +359,7 @@ class DashboardSetting extends Component {
   }
 
   render() {
-    const { DashboardSettingStore } = this.props;
+    const { AppState, DashboardSettingStore, intl } = this.props;
     const { pagination, params, loading, dashboardData, sidebarVisible } = DashboardSettingStore;
     return (
       <Page
@@ -279,7 +377,10 @@ class DashboardSetting extends Component {
             <FormattedMessage id="refresh" />
           </Button>
         </Header>
-        <Content code={intlPrefix}>
+        <Content
+          code={intlPrefix}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
+        >
           <Table
             loading={loading}
             className="dashboard-table"
@@ -289,6 +390,7 @@ class DashboardSetting extends Component {
             filters={params}
             onChange={this.handleTableChange}
             rowKey={({ code, namespace }) => `${namespace}-${code}`}
+            filterBarPlaceholder={intl.formatMessage({ id: 'filtertable' })}
           />
           <Sidebar
             title={<FormattedMessage id={`${intlPrefix}.sidebar.title`} />}

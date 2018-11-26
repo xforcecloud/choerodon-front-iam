@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import { inject, observer } from 'mobx-react';
@@ -6,7 +7,6 @@ import { Form, Table, Input, Button, Select, Tabs, Spin, Tooltip, Icon, Modal } 
 import { injectIntl, FormattedMessage } from 'react-intl';
 import querystring from 'query-string';
 import classnames from 'classnames';
-import _ from 'lodash';
 import Hjson from 'hjson';
 import './APITest.scss';
 import jsonFormat from '../../../common/json-format';
@@ -16,6 +16,8 @@ import AuthorizeModal from './AuthorizeModal';
 let statusCode;
 let responseHeader;
 let response;
+let rcResponseHeader;
+let rcResponse;
 let authorization;
 const intlPrefix = 'global.apitest';
 const urlPrefix = process.env.API_HOST;
@@ -59,11 +61,15 @@ instance.interceptors.request.use(
 instance.interceptors.response.use((res) => {
   statusCode = res.status; // 响应码
   responseHeader = jsonFormat(res.headers);
+  rcResponseHeader = JSON.stringify(res.headers);
   response = res.data instanceof Object ? jsonFormat(res.data) : `${res.data}`; // 响应主体
+  rcResponse = JSON.stringify(res.data);
 }, (error) => {
   statusCode = error.response.status; // 响应码
   responseHeader = jsonFormat(error.response.headers);
+  rcResponseHeader = JSON.stringify(error.response.headers);
   response = error.response.data instanceof Object ? jsonFormat(error.response.data) : `${error.response.data}`; // 响应主体
+  rcResponse = JSON.stringify(error.response.data);
 });
 
 @Form.create()
@@ -132,11 +138,7 @@ export default class APIDetail extends Component {
 
   getDetail() {
     const { intl } = this.props;
-    const { method, url, remark, consumes, produces } = APITestStore.getApiDetail;
-    const keyArr = ['请求方式', '路径', '描述', 'Action', '权限层级', '是否为登录可访问', '是否为公开权限', '请求格式', '响应格式'];
-    const tableValue = keyArr.map(item => ({
-      name: item,
-    }));
+    const { code, method, url, remark, consumes, produces } = APITestStore.getApiDetail;
     const desc = APITestStore.getApiDetail.description || '[]';
     const responseDataExample = APITestStore.getApiDetail
     && APITestStore.getApiDetail.responses.length ? APITestStore.getApiDetail.responses[0].body || 'false' : '{}';
@@ -145,22 +147,45 @@ export default class APIDetail extends Component {
     const handledDesc = Hjson.parse(desc);
     const { permission = { roles: [] } } = handledDesc;
     const roles = permission.roles.length && permission.roles.map(item => ({
-      name: '默认角色',
+      name: intl.formatMessage({ id: `${intlPrefix}.default.role` }),
       value: item,
     }));
-    tableValue[0].value = method;
-    tableValue[1].value = url;
-    tableValue[2].value = remark;
-    tableValue[3].value = permission && permission.action;
-    tableValue[4].value = permission && permission.permissionLevel;
-    tableValue[5].value = permission && permission.permissionLogin ? '是' : '否';
-    tableValue[6].value = permission && permission.permissionPublic ? '是' : '否';
-    tableValue[7].value = consumes[0];
-    tableValue[8].value = produces[0];
+
+    const tableValue = [{
+      name: intl.formatMessage({ id: `${intlPrefix}.code` }),
+      value: code,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.method` }),
+      value: method,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.url` }),
+      value: url,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.remark` }),
+      value: remark,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.action` }),
+      value: permission && permission.action,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.level` }),
+      value: permission && permission.permissionLevel,
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.login.accessible` }),
+      value: permission && permission.permissionLogin ? '是' : '否',
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.public.permission` }),
+      value: permission && permission.permissionPublic ? '是' : '否',
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.request.format` }),
+      value: consumes[0],
+    }, {
+      name: intl.formatMessage({ id: `${intlPrefix}.response.format` }),
+      value: produces[0],
+    }];
+
     if (roles) {
       tableValue.splice(5, 0, ...roles);
     }
-
 
     const infoColumns = [{
       title: <FormattedMessage id={`${intlPrefix}.property`} />,
@@ -320,6 +345,25 @@ export default class APIDetail extends Component {
     Choerodon.prompt(formatMessage({ id: 'copy.success' }));
   }
 
+  handleCopyHeader() {
+    const { intl: { formatMessage } } = this.props;
+    const headerRootEle = document.getElementById('responseHeader');
+    headerRootEle.value = rcResponseHeader;
+    headerRootEle.select();
+    document.execCommand('Copy');
+    Choerodon.prompt(formatMessage({ id: 'copy.success' }));
+  }
+
+  handleCopyBody() {
+    const { intl: { formatMessage } } = this.props;
+    const headerRootEle = document.getElementById('responseContent');
+    headerRootEle.value = rcResponse;
+    headerRootEle.select();
+    document.execCommand('Copy');
+    Choerodon.prompt(formatMessage({ id: 'copy.success' }));
+  }
+
+
   getTest = () => {
     let curlContent;
     const upperMethod = {
@@ -373,7 +417,7 @@ export default class APIDetail extends Component {
         let editableNode;
         if (!record.type) {
           editableNode = (
-            <div style={{ width: '50%' }}>
+            <div style={{ width: '100%' }} className="c7n-iam-TextEditToggle-text">
               <FormItem>
                 {getFieldDecorator('bodyData', {
                   rules: [{
@@ -384,6 +428,7 @@ export default class APIDetail extends Component {
                   <TextArea className="errorTextarea" rows={6} placeholder={getFieldError('bodyData')} />,
                 )}
               </FormItem>
+              <Icon type="mode_edit" className="c7n-iam-TextEditToggle-text-icon" />
             </div>);
         } else if (record.type === 'boolean') {
           editableNode = (
@@ -395,6 +440,7 @@ export default class APIDetail extends Component {
                   <Select
                     dropdownStyle={{ width: '55px' }}
                     defaultValue=""
+                    getPopupContainer={() => document.getElementsByClassName('page-content')[0]}
                     onChange={this.handleSelectChange.bind(this, record.name)}
                   >
                     <Option value="" style={{ height: '22px' }} />
@@ -415,9 +461,12 @@ export default class APIDetail extends Component {
                     message: intl.formatMessage({ id: `${intlPrefix}.required.msg` }, { name: `${record.name}` }),
                   }],
                 })(
-                  <TextArea className={classnames({ errorTextarea: getFieldError(`${record.name}`) })} rows={6} placeholder={getFieldError(`${record.name}`) || '请以换行的形式输入多个值'} onChange={this.changeTextareaValue.bind(this, record.name, record.type)} />,
-                )}
+                  <div className="c7n-iam-TextEditToggle-text">
+                    <TextArea className={classnames({ errorTextarea: getFieldError(`${record.name}`) })} rows={6} placeholder={getFieldError(`${record.name}`) || '请以换行的形式输入多个值'} onChange={this.changeTextareaValue.bind(this, record.name, record.type)} />
+                    <Icon type="mode_edit" className="c7n-iam-TextEditToggle-text-icon" />
+                  </div>)}
               </FormItem>
+
             </div>);
         } else if (record.type === 'file') {
           editableNode = (
@@ -439,8 +488,9 @@ export default class APIDetail extends Component {
                   message: intl.formatMessage({ id: `${intlPrefix}.required.msg` }, { name: `${record.name}` }),
                 }],
               })(
-                <div style={{ width: '50%' }}>
-                  <Input autoComplete="off" onChange={this.changeNormalValue.bind(this, record.name, record.in)} placeholder={getFieldError(`${record.name}`)} />
+                <div style={{ width: '50%' }} className="c7n-iam-TextEditToggle-text">
+                  <Input onFocus={this.inputOnFocus} autoComplete="off" onChange={this.changeNormalValue.bind(this, record.name, record.in)} placeholder={getFieldError(`${record.name}`)} />
+                  <Icon type="mode_edit" className="c7n-iam-TextEditToggle-text-icon" />
                 </div>,
               )}
             </FormItem>
@@ -512,10 +562,11 @@ export default class APIDetail extends Component {
             <span className="info">{intl.formatMessage({ id: `${intlPrefix}.authorize.account` })}：</span>
             <span className="info">{APITestStore.getUserInfo || this.props.AppState.getUserInfo.loginName}</span>
             <Button
-              funcType="raised"
+              funcType="flat"
               type="primary"
               htmlType="submit"
               onClick={this.openAuthorizeModal}
+              icon="mode_edit"
             >
               {intl.formatMessage({ id: `${intlPrefix}.authorize.change` })}
             </Button>
@@ -560,6 +611,11 @@ export default class APIDetail extends Component {
                   {response}
                 </code>
               </pre>
+              <Icon
+                type="library_books"
+                onClick={this.handleCopyBody.bind(this)}
+              />
+              <textarea style={{ position: 'absolute', zIndex: -10 }} id="responseContent" />
             </div>
           </div>
           <div className="c7n-response-body">
@@ -570,6 +626,11 @@ export default class APIDetail extends Component {
                   {responseHeader}
                 </code>
               </pre>
+              <Icon
+                type="library_books"
+                onClick={this.handleCopyHeader.bind(this)}
+              />
+              <textarea style={{ position: 'absolute', zIndex: -10 }} id="responseHeader" />
             </div>
           </div>
           <div className="c7n-curl">
@@ -600,20 +661,7 @@ export default class APIDetail extends Component {
         APITestStore.setIsShowResult(false);
         this.responseNode.scrollTop = 0;
         this.curlNode.scrollLeft = 0;
-        if ('bodyData' in values) {
-          instance[APITestStore.getApiDetail.method](this.state.requestUrl,
-            Hjson.parse(values.bodyData || '')).then(function (res) {
-            this.setState({
-              isSending: false,
-            });
-            APITestStore.setIsShowResult(true);
-          }).catch((error) => {
-            this.setState({
-              isSending: false,
-            });
-            APITestStore.setIsShowResult(true);
-          });
-        } else if (this.fileInput) {
+        if (this.fileInput) {
           const formData = new FormData();
           formData.append('file', this.fileInput.files[0]);
           instance[APITestStore.getApiDetail.method](this.state.requestUrl, formData)
@@ -628,6 +676,19 @@ export default class APIDetail extends Component {
               });
               APITestStore.setIsShowResult(true);
             });
+        } else if ('bodyData' in values) {
+          instance[APITestStore.getApiDetail.method](this.state.requestUrl,
+            Hjson.parse(values.bodyData || '')).then(function (res) {
+            this.setState({
+              isSending: false,
+            });
+            APITestStore.setIsShowResult(true);
+          }).catch((error) => {
+            this.setState({
+              isSending: false,
+            });
+            APITestStore.setIsShowResult(true);
+          });
         } else {
           instance[APITestStore.getApiDetail.method](this.state.requestUrl).then(function (res) {
             this.setState({
@@ -691,7 +752,7 @@ export default class APIDetail extends Component {
     this.setState({
       query,
     });
-    query = _.replace(query, '&', '?');
+    query = query.replace('&', '?');
     this.setState({ requestUrl: `${requestUrl}${query}`, urlPathValues });
   };
 
@@ -727,7 +788,7 @@ export default class APIDetail extends Component {
                   <TabPane tab={<FormattedMessage id={`${intlPrefix}.interface.detail`} />} key="detail">
                     {this.getDetail()}
                   </TabPane>
-                  <TabPane tab={<FormattedMessage id={`${intlPrefix}.interface.test`} />} key="test">
+                  <TabPane tab={<FormattedMessage id={`${intlPrefix}.interface.test`} />} key="test" disabled={APITestStore.getApiDetail.innerInterface}>
                     {this.getTest()}
                   </TabPane>
                 </Tabs>

@@ -1,32 +1,17 @@
 .c7n-api-table {
-  .c7n-apitest-name {
-    max-width: 300px;
-    width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .c7n-apitest-url {
-    width: 438px;
-    max-width: 438px;
-  }
-
-  .urlContainer {
-    max-width: 380px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-  }
-
   .methodTag {
     display: inline-block;
-    height: 20px;
-    padding: 1px 4px;
+    line-height: 1.6;
+    margin-left: 28px;
+    padding: 0 4px;
     text-align: center;
     font-size: 13px;
     color: #fff;
     text-transform: uppercase;
     border-radius: 2px;
+  }
+  > .ant-spin-nested-loading {
+    height: 500px;
   }
 }
 
@@ -55,9 +40,15 @@
 }
 
 .c7n-api-test {
+  &-description {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 296px;
+    overflow: hidden;
+  }
   .string,
   .number {
-    color: #f44336;
+    color: #800;
   }
   .boolean,
   .undefined,
@@ -254,6 +245,7 @@
 
       .c7n-response-body {
         margin-top: 24px;
+        position: relative;
 
         .response-body-container {
           width: 100%;
@@ -263,6 +255,22 @@
           background: #f1f9ff;
           white-space: nowrap;
           font-size: 14px;
+
+          &:hover {
+            i.icon.icon-library_books {
+              display: inline-block;
+            }
+          }
+        }
+        i.icon.icon-library_books {
+          position: absolute;
+          top: 50px;
+          right: 16px;
+          color: #3f51b5;
+          cursor: pointer;
+          font-size: 25px;
+          background: white;
+          display: none;
         }
       }
 
@@ -304,6 +312,10 @@
   }
 }
 
+.ant-table-row-expand-icon {
+  margin-right: 8px;
+}
+
 .c7n-apitest-modal {
   position: relative;
   padding-top: 26px;
@@ -311,11 +323,27 @@
 
   .c7n-apitest-modal-icon {
     height: 30px;
-    width: 172px;
-    margin: 0 auto;
-    background-image: url('./icon/choerodon_logo_color.svg');
+    width: 41px;
+    margin-right: 8px;
+    // background-image: url('./icon/choerodon_logo_color.svg');
     background-repeat: no-repeat;
     background-size: auto 31px;
+    line-height: 30px;
+    font-size: 22px;
+  }
+
+  .c7n-apitest-modal-icon-content {
+    display: flex;
+    justify-content: center;
+  }
+
+  .c7n-apitest-modal-default-icon {
+    background-image: url('./icon/choerodon_logo_color.svg');
+  }
+
+  .c7n-apitest-modal-icon-title {
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 22px;
   }
 
   .c7n-apitest-modal-title {
@@ -346,3 +374,49 @@
   }
 }
 
+.c7n-iam-TextEditToggle-text {
+  cursor: text;
+  position: relative;
+  padding: 0 20px 2px 0;
+}
+
+.c7n-iam-TextEditToggle-text .c7n-iam-TextEditToggle-text-icon {
+  color: rgba(0, 0, 0, .65);
+  display: none;
+}
+
+.c7n-iam-TextEditToggle-text:hover .c7n-iam-TextEditToggle-text-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: block;
+  z-index: 10;
+  transform: translateY(-50%);
+}
+.ant-input-focus + .c7n-iam-TextEditToggle-text-icon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: block;
+  z-index: 10;
+  transform: translateY(-50%);
+}
+
+.c7n-iam-TextEditToggle-edit-icon {
+  // display: block;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, .65);
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.c7n-iam-TextEditToggle-edit {
+  .ant-form-item {
+    padding: 0;
+    margin: 0;
+  }
+}

@@ -21,7 +21,6 @@ const formItemLayout = {
     sm: { span: 10 },
   },
 };
-const defaultPassword = 'abcd1234';
 
 function noop() {
 }
@@ -204,6 +203,7 @@ export default class UserEdit extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, data, modify) => {
+      data.realName = data.realName.trim();
       if (!err) {
         const { AppState, edit, onSubmit = noop, onSuccess = noop, onError = noop, OnUnchangedSuccess = noop, intl } = this.props;
         const menuType = AppState.currentMenuType;
@@ -255,7 +255,6 @@ export default class UserEdit extends Component {
     const { getFieldDecorator } = this.props.form;
     const { userInfo } = this.state;
     const { originalPassword, enablePassword } = CreateUserStore.getPasswordPolicy || {};
-
     return (
       <Content
         className="sidebar-content"
@@ -272,13 +271,12 @@ export default class UserEdit extends Component {
                   required: true,
                   whitespace: true,
                   message: intl.formatMessage({ id: `${intlPrefix}.loginname.require.msg` }),
-                },
-                {
+                }, {
+                  pattern: /^[0-9a-zA-Z]+$/,
+                  message: intl.formatMessage({ id: `${intlPrefix}.loginname.pattern.msg` }),
+                }, {
                   validator: this.checkUsername,
                 },
-                // {
-                //   validator: this.validateToPassword,
-                // },
               ],
               validateTrigger: 'onBlur',
               initialValue: userInfo.loginName,
@@ -290,6 +288,8 @@ export default class UserEdit extends Component {
                 disabled={edit}
                 style={{ width: inputWidth }}
                 ref={(e) => { this.createFocusInput = e; }}
+                maxLength={32}
+                showLengthInfo={false}
               />,
             )}
           </FormItem>
@@ -315,6 +315,8 @@ export default class UserEdit extends Component {
                   rows={1}
                   style={{ width: inputWidth }}
                   ref={(e) => { this.editFocusInput = e; }}
+                  maxLength={32}
+                  showLengthInfo={false}
                 />,
               )
             }
@@ -345,6 +347,8 @@ export default class UserEdit extends Component {
                 autoComplete="off"
                 label={intl.formatMessage({ id: `${intlPrefix}.email` })}
                 style={{ width: inputWidth }}
+                maxLength={64}
+                showLengthInfo={false}
               />,
             )}
           </FormItem>
@@ -366,7 +370,7 @@ export default class UserEdit extends Component {
                     validator: this.validateToNextPassword,
                   },
                 ],
-                initialValue: (enablePassword && originalPassword) || defaultPassword,
+                initialValue: (enablePassword && originalPassword) || AppState.getSiteInfo.defaultPassword,
                 validateFirst: true,
               })(
                 <Input
@@ -374,6 +378,7 @@ export default class UserEdit extends Component {
                   label={intl.formatMessage({ id: `${intlPrefix}.password` })}
                   type="password"
                   style={{ width: inputWidth }}
+                  showPasswordEye
                 />,
               )}
             </FormItem>
@@ -391,7 +396,7 @@ export default class UserEdit extends Component {
                   }, {
                     validator: this.checkRepassword,
                   }],
-                initialValue: (enablePassword && originalPassword) || defaultPassword,
+                initialValue: (enablePassword && originalPassword) || AppState.getSiteInfo.defaultPassword,
                 validateFirst: true,
               })(
                 <Input
@@ -400,6 +405,7 @@ export default class UserEdit extends Component {
                   type="password"
                   style={{ width: inputWidth }}
                   onBlur={this.handleRePasswordBlur}
+                  showPasswordEye
                 />,
               )}
             </FormItem>

@@ -12,6 +12,9 @@ The basic module has 3 levels, which have the following functions:
  * Project layout:
     * Project Settings
     * Role assignment function at the project level
+    * Task Detail at project level
+    * Execution Record at project level
+    * Executable Program at project level
  * Organization layout:
     * Project Management
     * User Management
@@ -19,7 +22,9 @@ The basic module has 3 levels, which have the following functions:
     * LDAP settings
     * Password Policy Management
     * Role Assignments function at organization level
-    * Mail Template at organization level
+    * Task Detail at organization level
+    * Execution Record at organization level
+    * Executable Program at organization level
  * Global layout:
     * User Info
     * Change Password
@@ -35,13 +40,22 @@ The basic module has 3 levels, which have the following functions:
     * Config Management
     * Route Management
     * Role Assignments function at global level
-    * Mail Template at organization level
+    * Mail Template at global level
     * Saga Instance
     * Saga Define
     * Role Tag
     * Mailbox Setting
     * API Test
     * Dashboard Setting
+    * Send Setting at global level
+    * Message Record at global level
+    * Inmail Template at global level
+    * Task Detail
+    * Execution Record
+    * Executable Program
+    * Receive Setting
+    * System Setting
+
 
 ## Development build
 

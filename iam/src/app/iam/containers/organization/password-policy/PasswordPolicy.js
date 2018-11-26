@@ -94,7 +94,6 @@ export default class PasswordPolicy extends Component {
    */
   loadData() {
     const { organizationId } = this.state;
-    const { setFieldsValue } = this.props.form;
     this.setState({
       loading: true,
     });
@@ -158,10 +157,38 @@ export default class PasswordPolicy extends Component {
     });
   };
 
+  checkMaxLength = (rule, value, callback) => {
+    const { getFieldValue } = this.props.form;
+    const { intl } = this.props;
+    const digitsCount = getFieldValue('digitsCount');
+    const lowercaseCount = getFieldValue('lowercaseCount');
+    const uppercaseCount = getFieldValue('uppercaseCount');
+    const specialCharCount = getFieldValue('specialCharCount');
+    if (digitsCount + lowercaseCount + uppercaseCount + specialCharCount > value) {
+      callback(intl.formatMessage({ id: `${inputPrefix}.max.length` }));
+    }
+    this.props.form.validateFields(['minLength'], { force: true });
+    callback();
+  }
+
+  checkMinLength = (rule, value, callback) => {
+    const { intl } = this.props;
+    const { getFieldValue } = this.props.form;
+    const maxLength = getFieldValue('maxLength');
+    if (value > maxLength) callback(intl.formatMessage({ id: `${inputPrefix}.min.lessthan.more` }));
+    callback();
+  }
+
+  checkOtherLength = (rule, value, callback) => {
+    this.props.form.validateFields(['maxLength'], { force: true });
+    callback();
+  }
+
   render() {
     const { AppState, form, intl } = this.props;
     const { getFieldDecorator } = form;
     const { loading, submitting, showPwd, showLogin } = this.state;
+    const inputHalfWidth = '236px';
     const inputWidth = '512px';
     const passwordPolicy = PasswordPolicyStore.passwordPolicy;
     const pwdStatus = passwordPolicy && passwordPolicy.enablePassword ? 'enablePwd' : 'disablePwd'; // 密码安全策略是否启用
@@ -179,7 +206,7 @@ export default class PasswordPolicy extends Component {
         />
         <FormattedMessage id={`${inputPrefix}.password`} />
       </div>
-      <Form onSubmit={this.handleSubmit} layout="vertical" className="PwdPolicyForm">
+      <Form layout="vertical" className="PwdPolicyForm">
         <div style={{ display: showPwd ? 'block' : 'none' }}>
           <FormItem
             {...formItemNumLayout}
@@ -216,140 +243,173 @@ export default class PasswordPolicy extends Component {
                   label={<FormattedMessage id={`${inputPrefix}.originalpassword`} />}
                   style={{ width: inputWidth }}
                 />,
+              )
+            }
+          </FormItem>
+          <div className="input-collection">
+            <FormItem>
+              {getFieldDecorator('minLength', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkMinLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.minLength ?
+                  passwordPolicy.minLength : 0,
+              })(
+                <InputNumber
+                  autoComplete="off"
+                  onBlur={this.inputNumBlur.bind(this, 'minLength')}
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.minlength`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
               )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('minLength', {
-              rules: [
-                {
-                  pattern: /^([1-9]\d*|[0]{1,1})$/,
-                  type: 'number',
-                  message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-                },
-              ],
-              initialValue: passwordPolicy && passwordPolicy.minLength ?
-                passwordPolicy.minLength : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'minLength')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.minlength`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('maxLength', {
-              rules: [{
-                pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
-                message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-              }],
-              initialValue: passwordPolicy && passwordPolicy.maxLength ?
-                passwordPolicy.maxLength : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'maxLength')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.maxlength`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('digitsCount', {
-              rules: [{
-                pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
-                message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-              }],
-              initialValue: passwordPolicy && passwordPolicy.digitsCount ?
-                passwordPolicy.digitsCount : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'digitsCount')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.digitscount`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('lowercaseCount', {
-              rules: [{
-                pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
-                message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-              }],
-              initialValue: passwordPolicy && passwordPolicy.lowercaseCount ?
-                passwordPolicy.lowercaseCount : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'lowercaseCount')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.lowercasecount`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('uppercaseCount', {
-              rules: [{
-                pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
-                message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-              }],
-              initialValue: passwordPolicy && passwordPolicy.uppercaseCount ?
-                passwordPolicy.uppercaseCount : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'uppercaseCount')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.uppercasecount`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
-          <FormItem>
-            {getFieldDecorator('specialCharCount', {
-              rules: [{
-                pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
-                message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
-              }],
-              initialValue: passwordPolicy && passwordPolicy.specialCharCount ?
-                passwordPolicy.specialCharCount : 0,
-            })(
-              <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'specialCharCount')}
-                autoComplete="off"
-                min={0}
-                label={<FormattedMessage id={`${inputPrefix}.specialcharcount`} />}
-                style={{ width: inputWidth }}
-              />,
-            )}
-          </FormItem>
+            </FormItem>
+            <FormItem>
+              {getFieldDecorator('maxLength', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkMaxLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.maxLength ?
+                  passwordPolicy.maxLength : 0,
+              })(
+                <InputNumber
+                  autoComplete="off"
+                  onBlur={this.inputNumBlur.bind(this, 'maxLength')}
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.maxlength`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
+              )}
+            </FormItem>
+          </div>
+          <div className="input-collection">
+            <FormItem>
+              {getFieldDecorator('digitsCount', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkOtherLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.digitsCount ?
+                  passwordPolicy.digitsCount : 0,
+              })(
+                <InputNumber
+                  onBlur={this.inputNumBlur.bind(this, 'digitsCount')}
+                  autoComplete="off"
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.digitscount`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
+              )}
+            </FormItem>
+            <FormItem>
+              {getFieldDecorator('lowercaseCount', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkOtherLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.lowercaseCount ?
+                  passwordPolicy.lowercaseCount : 0,
+              })(
+                <InputNumber
+                  autoComplete="off"
+                  onBlur={this.inputNumBlur.bind(this, 'lowercaseCount')}
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.lowercasecount`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
+              )}
+            </FormItem>
+          </div>
+          <div className="input-collection">
+            <FormItem>
+              {getFieldDecorator('uppercaseCount', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkOtherLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.uppercaseCount ?
+                  passwordPolicy.uppercaseCount : 0,
+              })(
+                <InputNumber
+                  autoComplete="off"
+                  onBlur={this.inputNumBlur.bind(this, 'uppercaseCount')}
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.uppercasecount`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
+              )}
+            </FormItem>
+            <FormItem>
+              {getFieldDecorator('specialCharCount', {
+                rules: [
+                  {
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
+                    message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
+                  },
+                  {
+                    validator: this.checkOtherLength,
+                    validateFirst: true,
+                  },
+                ],
+                initialValue: passwordPolicy && passwordPolicy.specialCharCount ?
+                  passwordPolicy.specialCharCount : 0,
+              })(
+                <InputNumber
+                  autoComplete="off"
+                  onBlur={this.inputNumBlur.bind(this, 'specialCharCount')}
+                  min={0}
+                  label={<FormattedMessage id={`${inputPrefix}.specialcharcount`} />}
+                  style={{ width: inputHalfWidth }}
+                />,
+              )}
+            </FormItem>
+          </div>
           <FormItem>
             {getFieldDecorator('notRecentCount', {
               rules: [{
                 pattern: /^([1-9]\d*|[0]{1,1})$/,
-                type: 'number',
                 message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
               }],
               initialValue: passwordPolicy && passwordPolicy.notRecentCount ?
                 passwordPolicy.notRecentCount : 0,
             })(
               <InputNumber
-                onBlur={this.inputNumBlur.bind(this, 'notRecentCount')}
                 autoComplete="off"
                 min={0}
                 label={<FormattedMessage id={`${inputPrefix}.notrecentcount`} />}
-                style={{ width: inputWidth }}
+                style={{ width: inputHalfWidth }}
               />,
             )}
           </FormItem>
@@ -411,7 +471,6 @@ export default class PasswordPolicy extends Component {
                 {getFieldDecorator('maxCheckCaptcha', {
                   rules: [{
                     pattern: /^([1-9]\d*|[0]{1,1})$/,
-                    type: 'number',
                     message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
                   }],
                   initialValue: passwordPolicy && passwordPolicy.enableCaptcha ?
@@ -449,8 +508,7 @@ export default class PasswordPolicy extends Component {
               <FormItem>
                 {getFieldDecorator('maxErrorTime', {
                   rules: [{
-                    pattern: /^[1-9]\d*|0$/,
-                    type: 'number',
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
                     message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
                   }],
                   initialValue: passwordPolicy && passwordPolicy.enableLock ?
@@ -468,8 +526,7 @@ export default class PasswordPolicy extends Component {
               <FormItem>
                 {getFieldDecorator('lockedExpireTime', {
                   rules: [{
-                    pattern: /^[1-9]\d*|0$/,
-                    type: 'number',
+                    pattern: /^([1-9]\d*|[0]{1,1})$/,
                     message: intl.formatMessage({ id: `${inputPrefix}.number.pattern.msg` }),
                   }],
                   initialValue: passwordPolicy && passwordPolicy.enableLock ?
@@ -490,31 +547,31 @@ export default class PasswordPolicy extends Component {
             </div>
           ) : ''}
         </div>
-        <div className="divider" />
-        <div className="btnGroup">
-          <Permission service={['iam-service.password-policy.update']}>
-            <Button
-              funcType="raised"
-              type="primary"
-              htmlType="submit"
-              loading={submitting}
-            >
-              <FormattedMessage id="save" />
-            </Button>
-          </Permission>
+      </Form>
+      <div className="divider" />
+      <div className="btnGroup">
+        <Permission service={['iam-service.password-policy.update']}>
           <Button
             funcType="raised"
-            onClick={() => {
-              const { resetFields } = this.props.form;
-              resetFields();
-            }}
-            disabled={submitting}
-            style={{ color: '#3F51B5' }}
+            type="primary"
+            loading={submitting}
+            onClick={this.handleSubmit}
           >
-            <FormattedMessage id="cancel" />
+            <FormattedMessage id="save" />
           </Button>
-        </div>
-      </Form>
+        </Permission>
+        <Button
+          funcType="raised"
+          onClick={() => {
+            const { resetFields } = this.props.form;
+            resetFields();
+          }}
+          disabled={submitting}
+          style={{ color: '#3F51B5' }}
+        >
+          <FormattedMessage id="cancel" />
+        </Button>
+      </div>
     </div>);
     return (
       <Page

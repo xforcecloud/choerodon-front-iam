@@ -1,3 +1,8 @@
+.c7n-route-table {
+  > .ant-spin-nested-loading {
+    height: 500px;
+  }
+}
 .route-form-container {
   .radioGroup {
     > label:first-child {
@@ -28,12 +33,3 @@
     }
   }
 }
-
-.iconStyle {
-  vertical-align: middle;
-
-  span {
-    vertical-align: middle;
-  }
-}
-

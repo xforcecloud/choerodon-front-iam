@@ -8,6 +8,7 @@ import jsonFormat from '../../../common/json-format';
 import SagaStore from '../../../stores/global/saga/SagaStore';
 import './style/saga.scss';
 import './style/json.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
 
 const intlPrefix = 'global.saga';
 const { Sidebar } = Modal;
@@ -113,9 +114,15 @@ export default class Saga extends Component {
       {
         title: <FormattedMessage id={`${intlPrefix}.code`} />,
         key: 'code',
+        width: '30%',
         dataIndex: 'code',
         filters: [],
         filteredValue: filters.code || [],
+        render: text => (
+          <MouseOverWrapper text={text} width={0.2}>
+            {text}
+          </MouseOverWrapper>
+        ),
       },
       {
         title: <FormattedMessage id={`${intlPrefix}.service`} />,
@@ -127,9 +134,15 @@ export default class Saga extends Component {
       {
         title: <FormattedMessage id={`${intlPrefix}.desc`} />,
         key: 'description',
+        width: '40%',
         dataIndex: 'description',
         filters: [],
         filteredValue: filters.description || [],
+        render: text => (
+          <MouseOverWrapper text={text} width={0.3}>
+            {text}
+          </MouseOverWrapper>
+        ),
       },
       {
         title: '',
@@ -170,6 +183,7 @@ export default class Saga extends Component {
 
   render() {
     const { showJson, data } = this.state;
+    const { AppState } = this.props;
     return (
       <Page
         className="c7n-saga"
@@ -192,6 +206,7 @@ export default class Saga extends Component {
         </Header>
         <Content
           code={intlPrefix}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           {this.renderTable()}
           <Sidebar
@@ -205,6 +220,7 @@ export default class Saga extends Component {
             <Content
               className="sidebar-content"
               code={`${intlPrefix}.detail`}
+              values={{ name: data.code }}
             >
               <Tabs activeKey={showJson ? 'json' : 'img'} onChange={this.handleTabChange}>
                 <TabPane tab={<FormattedMessage id={`${intlPrefix}.img`} />} key="img" />

@@ -8,6 +8,7 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { withRouter } from 'react-router-dom';
 import { axios, Content, Header, Page } from 'choerodon-front-boot';
 import querystring from 'query-string';
+import './MicroService.scss';
 
 const intlPrefix = 'global.microservice';
 
@@ -102,7 +103,7 @@ export default class MicroService extends Component {
 
   render() {
     const { loading, content, sort: { columnKey, order }, filters, pagination, params } = this.state;
-    const { intl } = this.props;
+    const { intl, AppState } = this.props;
     const columns = [{
       title: <FormattedMessage id={`${intlPrefix}.name`} />,
       dataIndex: 'serviceName',
@@ -132,7 +133,7 @@ export default class MicroService extends Component {
         </Header>
         <Content
           code={intlPrefix}
-          values={{ name: `${process.env.HEADER_TITLE_NAME || 'Choerodon'}` }}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           <Table
             loading={loading}
@@ -142,6 +143,7 @@ export default class MicroService extends Component {
             filters={params}
             onChange={this.handlePageChange}
             rowKey="serviceName"
+            className="c7n-microservice-table"
             filterBarPlaceholder={intl.formatMessage({ id: 'filtertable' })}
           />
         </Content>

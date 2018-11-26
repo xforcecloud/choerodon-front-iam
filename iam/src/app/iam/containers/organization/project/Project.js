@@ -5,8 +5,9 @@ import { inject, observer } from 'mobx-react';
 import { withRouter } from 'react-router-dom';
 import { Content, Header, Page, Permission, stores } from 'choerodon-front-boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import _ from 'lodash';
 import './Project.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
+import StatusTag from '../../../components/statusTag';
 
 const { HeaderStore } = stores;
 const FormItem = Form.Item;
@@ -31,7 +32,6 @@ export default class Project extends Component {
       projectDatas: [],
       visible: false,
       visibleCreate: false,
-      checkCode: false,
       checkName: false,
       buttonClicked: false,
       state: {},
@@ -141,7 +141,7 @@ export default class Project extends Component {
         if (!err) {
           data = {
             code,
-            name,
+            name: name.trim(),
             organizationId,
           };
           this.setState({ submitting: true });
@@ -174,7 +174,7 @@ export default class Project extends Component {
             return;
           }
           data = {
-            name,
+            name: name.trim(),
           };
           this.setState({ submitting: true, buttonClicked: true });
           ProjectStore.updateProject(organizationId,
@@ -235,7 +235,7 @@ export default class Project extends Component {
    * @param value 项目编码
    * @param callback 回调函数
    */
-  checkCodeOnly = _.debounce((value, callback) => {
+  checkCode = (rule, value, callback) => {
     const { AppState, ProjectStore, intl } = this.props;
     const menuType = AppState.currentMenuType;
     const organizationId = menuType.id;
@@ -248,33 +248,8 @@ export default class Project extends Component {
           callback();
         }
       });
-  }, 1000);
+  };
 
-
-  /**
-   * 校验编码
-   * @param rule 校验规则
-   * @param value 项目编码
-   * @param callback 回调函数
-   */
-  checkcode(rule, value, callback) {
-    const { intl } = this.props;
-    if (!value) {
-      callback(intl.formatMessage({ id: `${intlPrefix}.code.require.msg` }));
-      return;
-    }
-    if (value.length <= 14) {
-      // eslint-disable-next-line no-useless-escape
-      const pa = /^[a-z]([-a-z0-9]*[a-z0-9])?$/;
-      if (pa.test(value)) {
-        this.checkCodeOnly(value, callback);
-      } else {
-        callback(intl.formatMessage({ id: `${intlPrefix}.code.pattern.msg` }));
-      }
-    } else {
-      callback(intl.formatMessage({ id: `${intlPrefix}.code.length.msg` }));
-    }
-  }
 
   renderSideTitle() {
     if (this.state.operation === 'create') {
@@ -303,7 +278,7 @@ export default class Project extends Component {
             name: this.state.projectDatas.code,
           },
         };
-      default :
+      default:
         return {};
     }
   }
@@ -336,15 +311,27 @@ export default class Project extends Component {
             {getFieldDecorator('code', {
               rules: [{
                 required: true,
-                hasFeedback: false,
-                validator: this.checkcode.bind(this),
+                whitespace: true,
+                message: intl.formatMessage({ id: `${intlPrefix}.code.require.msg` }),
+              }, {
+                max: 14,
+                message: intl.formatMessage({ id: `${intlPrefix}.code.length.msg` }),
+              }, {
+                pattern: /^[a-z](([a-z0-9]|-(?!-))*[a-z0-9])*$/,
+                message: intl.formatMessage({ id: `${intlPrefix}.code.pattern.msg` }),
+              }, {
+                validator: this.checkCode,
               }],
+              validateTrigger: 'onBlur',
+              validateFirst: true,
             })(
               <Input
                 autoComplete="off"
                 label={<FormattedMessage id={`${intlPrefix}.code`} />}
                 style={{ width: inputWidth }}
                 ref={(e) => { this.createFocusInput = e; }}
+                maxLength={14}
+                showLengthInfo={false}
               />,
             )}
           </FormItem>) : null}
@@ -364,6 +351,8 @@ export default class Project extends Component {
                 label={<FormattedMessage id={`${intlPrefix}.name`} />}
                 style={{ width: inputWidth }}
                 ref={(e) => { this.editFocusInput = e; }}
+                maxLength={32}
+                showLengthInfo={false}
               />,
             )}
           </FormItem>
@@ -387,15 +376,24 @@ export default class Project extends Component {
       key: 'name',
       filters: [],
       filteredValue: filters.name || [],
-      sorter: (a, b) => (a.name > b.name ? 1 : 0),
-      render: (text, record) => <span>{text}</span>,
+      width: '35%',
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id="code" />,
       dataIndex: 'code',
       filters: [],
       filteredValue: filters.code || [],
       key: 'code',
-      sorter: (a, b) => (a.code > b.code ? 1 : 0),
+      width: '35%',
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id="status" />,
       dataIndex: 'enabled',
@@ -408,7 +406,7 @@ export default class Project extends Component {
       }],
       filteredValue: filters.enabled || [],
       key: 'enabled',
-      render: text => <span className="titleNameStyle">{intl.formatMessage({ id: text ? 'enable' : 'disable' })}</span>,
+      render: enabled => (<StatusTag mode="icon" name={intl.formatMessage({ id: enabled ? 'enable' : 'disable' })} colorCode={enabled ? 'COMPLETED' : 'DISABLE'} />),
     }, {
       title: '',
       key: 'action',

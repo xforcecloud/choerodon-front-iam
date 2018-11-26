@@ -1,19 +1,24 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Prompt } from 'react-router-dom';
 import { Button, Form, Icon, IconSelect, Input, Modal, Table, Tabs, Tooltip } from 'choerodon-ui';
 import { axios, Content, Header, Page, Permission, stores } from 'choerodon-front-boot';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import _ from 'lodash';
 import { adjustSort, canDelete, defineLevel, deleteNode, findParent, hasDirChild, isChild, normalizeMenus } from './util';
 import './MenuSetting.scss';
+import '../../../common/ConfirmModal.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
 
 const { MenuStore } = stores;
 const intlPrefix = 'global.menusetting';
+const STRING_DEVIDER = '__@.@__';
 
 let currentDropOverItem;
 let currentDropSide;
 let dropItem;
+let edited;
+let saved;
 
 function dropSideClassName(side) {
   return `drop-row-${side}`;
@@ -60,6 +65,7 @@ export default class MenuSetting extends Component {
       loading: false,
       submitting: false,
       menuGroup: {},
+      prevMenuGroup: {},
       type: 'site',
       selectType: 'create',
       sidebar: false,
@@ -73,8 +79,18 @@ export default class MenuSetting extends Component {
 
   componentWillMount() {
     this.initMenu();
+    edited = null;
+    saved = null;
   }
-
+  componentWillUpdate(nextProps, nextState) {
+    if (saved) {
+      edited = false;
+    } else if (JSON.stringify(nextState.prevMenuGroup) !== JSON.stringify(nextState.menuGroup)) {
+      edited = true;
+    } else {
+      edited = false;
+    }
+  }
   // 初始化类型
   initMenu(type) {
     const { menuGroup, type: typeState } = this.state;
@@ -83,9 +99,11 @@ export default class MenuSetting extends Component {
     axios.get(`/iam/v1/menus/tree?level=${type}`)
       .then((value) => {
         menuGroup[type] = normalizeMenus(value);
+        // 深拷贝
         this.setState({
           menuGroup,
           loading: false,
+          prevMenuGroup: JSON.parse(JSON.stringify(menuGroup)),
         });
       })
       .catch((error) => {
@@ -185,6 +203,7 @@ export default class MenuSetting extends Component {
   handleDelete = (record) => {
     const { intl } = this.props;
     Modal.confirm({
+      className: 'c7n-iam-confirm-modal',
       title: intl.formatMessage({ id: `${intlPrefix}.delete.owntitle` }),
       content: intl.formatMessage({
         id: record.subMenus && record.subMenus.length ?
@@ -222,7 +241,7 @@ export default class MenuSetting extends Component {
             menu = {
               code,
               icon,
-              name,
+              name: name.trim(),
               default: false,
               level: type,
               type: 'dir',
@@ -235,7 +254,7 @@ export default class MenuSetting extends Component {
             Choerodon.prompt(intl.formatMessage({ id: `${intlPrefix}.create.success` }));
             break;
           case 'edit':
-            selectMenuDetail.name = name;
+            selectMenuDetail.name = name.trim();
             selectMenuDetail.icon = icon;
             Choerodon.prompt(intl.formatMessage({ id: `${intlPrefix}.modify.success` }));
             break;
@@ -246,8 +265,7 @@ export default class MenuSetting extends Component {
           sidebar: false,
           menuGroup,
           tempDirs,
-        })
-        ;
+        });
       }
     });
   };
@@ -268,13 +286,14 @@ export default class MenuSetting extends Component {
   // 创建3个状态的sidebar渲染
   getSidebarContent(selectType) {
     const { selectMenuDetail: { name } } = this.state;
+    const { AppState } = this.props;
     let formDom;
     let code;
     let values;
     switch (selectType) {
       case 'create':
         code = `${intlPrefix}.create`;
-        values = { name: `${process.env.HEADER_TITLE_NAME || 'Choerodon'}` };
+        values = { name: AppState.getSiteInfo.systemName || 'Choerodon' };
         formDom = this.getDirNameDom();
         break;
       case 'edit':
@@ -399,6 +418,8 @@ export default class MenuSetting extends Component {
               style={{ width: inputWidth }}
               disabled={selectType === 'edit'}
               ref={(e) => { this.addDirFocusInput = e; }}
+              maxLength={64}
+              showLengthInfo={false}
             />,
           )}
         </FormItem>
@@ -419,6 +440,8 @@ export default class MenuSetting extends Component {
               label={<FormattedMessage id={`${intlPrefix}.directory.name`} />}
               style={{ width: inputWidth }}
               ref={(e) => { this.changeMenuFocusInput = e; }}
+              maxLength={32}
+              showLengthInfo={false}
             />,
           )}
         </FormItem>
@@ -486,7 +509,7 @@ export default class MenuSetting extends Component {
   // 拖拽开始
   handleDragtStart(dragData, e) {
     e.dataTransfer.setData('text', 'choerodon');
-    document.body.ondrop = function (event) {
+    document.body.ondrop = (event) => {
       event.preventDefault();
       event.stopPropagation();
     };
@@ -594,27 +617,32 @@ export default class MenuSetting extends Component {
   // 储存菜单
   saveMenu = () => {
     const { intl } = this.props;
-    const { type, menuGroup } = this.state;
-    this.setState({ submitting: true });
-    axios.post(`/iam/v1/menus/tree?level=${type}`, JSON.stringify(adjustSort(menuGroup[type])))
-      .then((menus) => {
-        this.setState({ submitting: false });
-        if (menus.failed) {
-          Choerodon.prompt(menus.message);
-        } else {
-          MenuStore.setMenuData(_.cloneDeep(menus), type);
-          Choerodon.prompt(intl.formatMessage({ id: 'save.success' }));
-          menuGroup[type] = normalizeMenus(menus);
-          this.setState({
-            menuGroup,
-            tempDirs: [],
-          });
-        }
-      })
-      .catch((error) => {
-        Choerodon.handleResponseError(error);
-        this.setState({ submitting: false });
-      });
+    const { type, menuGroup, prevMenuGroup } = this.state;
+    if (JSON.stringify(prevMenuGroup) !== JSON.stringify(menuGroup)) {
+      this.setState({ submitting: true });
+      axios.post(`/iam/v1/menus/tree?level=${type}`, JSON.stringify(adjustSort(menuGroup[type])))
+        .then((menus) => {
+          this.setState({ submitting: false });
+          if (menus.failed) {
+            Choerodon.prompt(menus.message);
+          } else {
+            MenuStore.setMenuData(_.cloneDeep(menus), type);
+            Choerodon.prompt(intl.formatMessage({
+              id: 'save.success',
+            }));
+            saved = true;
+            menuGroup[type] = normalizeMenus(menus);
+            this.setState({
+              menuGroup,
+              tempDirs: [],
+            });
+          }
+        })
+        .catch((error) => {
+          Choerodon.handleResponseError(error);
+          this.setState({ submitting: false });
+        });
+    }
   };
 
   getOkText = (selectType) => {
@@ -629,23 +657,29 @@ export default class MenuSetting extends Component {
   };
 
   render() {
+    const { intl, AppState } = this.props;
     const menuType = this.props.AppState.currentMenuType.type;
     const { menuGroup, type: typeState, selectType, sidebar, submitting, loading } = this.state;
+    // Prompt 只能传单个字符串，所以用 STRING_DEVIDER 对 title 和 msg 进行了分离
+    const promptMsg = intl.formatMessage({ id: `${intlPrefix}.prompt.inform.title` }) + STRING_DEVIDER + intl.formatMessage({ id: `${intlPrefix}.prompt.inform.message` });
     const columns = [{
       title: <FormattedMessage id={`${intlPrefix}.directory`} />,
       dataIndex: 'name',
       key: 'name',
+      width: '25%',
       render: (text, { type, default: dft }) => {
         let icon = '';
         if (type === 'menu') {
           icon = 'dehaze';
         } else if (!dft) {
-          icon = 'custom_Directory';
-        } else {
           icon = 'folder';
+        } else {
+          icon = 'custom_Directory';
         }
         return (
-          <span><Icon type={icon} style={{ verticalAlign: 'text-bottom' }} /> {text}</span>
+          <MouseOverWrapper text={text} width={0.2} className="c7n-iam-menusetting-name">
+            <Icon type={icon} style={{ verticalAlign: 'text-bottom' }} /> {text}
+          </MouseOverWrapper>
         );
       },
       onCell: this.handleCell,
@@ -653,31 +687,51 @@ export default class MenuSetting extends Component {
       title: <FormattedMessage id={`${intlPrefix}.icon`} />,
       dataIndex: 'icon',
       key: 'icon',
-      render: text => <Icon type={text} style={{ fontSize: 18 }} />,
+      width: '10%',
+      render: text => (
+        <MouseOverWrapper text={text} width={0.8}>
+          <Icon type={text} style={{ fontSize: 18 }} />
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.code`} />,
       dataIndex: 'code',
       key: 'code',
-    }, {
-      title: <FormattedMessage id={`${intlPrefix}.belong`} />,
-      dataIndex: '__parent_name__',
-      key: '__parent_name__',
+      width: '35%',
+      render: text => (
+        <MouseOverWrapper text={text} width={0.3}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.type`} />,
       dataIndex: 'default',
       key: 'default',
+      width: '15%',
       render: (text, { type, default: dft }) => {
         if (type === 'menu') {
-          return <span style={{ cursor: 'default' }}>菜单</span>;
+          return (
+            <MouseOverWrapper text={text} width={0.10}>
+              <span style={{ cursor: 'default' }}>菜单</span>
+            </MouseOverWrapper>
+          );
         } else if (!dft) {
-          return <span style={{ cursor: 'default' }}>自设目录</span>;
+          return (
+            <MouseOverWrapper text={text} width={0.10}>
+              <span style={{ cursor: 'default' }}>自设目录</span>
+            </MouseOverWrapper>
+          );
         } else {
-          return <span style={{ cursor: 'default' }}>预置目录</span>;
+          return (
+            <MouseOverWrapper text={text} width={0.10}>
+              <span style={{ cursor: 'default' }}>预置目录</span>
+            </MouseOverWrapper>
+          );
         }
       },
     }, {
       title: '',
-      width: 100,
+      width: '15%',
       key: 'action',
       align: 'right',
       render: (text, record) => {
@@ -761,6 +815,7 @@ export default class MenuSetting extends Component {
         ]}
       >
         <Header title={<FormattedMessage id={`${intlPrefix}.header.title`} />}>
+          <Prompt message={promptMsg} wrapper="c7n-iam-confirm-modal" when={edited} />
           <Permission service={['iam-service.menu.create']}>
             <Button
               onClick={this.addDir}
@@ -778,6 +833,7 @@ export default class MenuSetting extends Component {
         </Header>
         <Content
           code={intlPrefix}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           <Tabs defaultActiveKey="site" onChange={this.selectMenuType}>
             <TabPane tab={<FormattedMessage id={`${intlPrefix}.global`} />} key="site" />

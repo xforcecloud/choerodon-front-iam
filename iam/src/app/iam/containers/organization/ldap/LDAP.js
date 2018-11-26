@@ -8,6 +8,7 @@ import { inject, observer } from 'mobx-react';
 import TestLdap from './TestLdap';
 import LoadingBar from '../../../components/loadingBar/index';
 import './LDAP.scss';
+import '../../../common/ConfirmModal.scss';
 
 const Sidebar = Modal.Sidebar;
 const RadioGroup = Radio.Group;
@@ -204,6 +205,7 @@ export default class LDAP extends Component {
     const ldapData = LDAPStore.getLDAPData;
     if (ldapData.enabled) {
       Modal.confirm({
+        className: 'c7n-iam-confirm-modal',
         title: intl.formatMessage({ id: `${intlPrefix}.disable.title` }),
         content: intl.formatMessage({ id: `${intlPrefix}.disable.content` }),
         onOk: () => LDAPStore.disabledLdap(organizationId, ldapData.id).then((data) => {
@@ -309,6 +311,7 @@ export default class LDAP extends Component {
         onRef={(node) => {
           this.TestLdap = node;
         }}
+        onAbort={() => { this.closeSidebar(); this.getSyncInfo(); }}
       />
     );
   }
@@ -384,6 +387,7 @@ export default class LDAP extends Component {
             {getFieldDecorator('serverAddress', {
               rules: [{
                 required: true,
+                whitespace: true,
                 message: intl.formatMessage({ id: `${intlPrefix}.serveraddress.require.msg` }),
               }],
               initialValue: ldapData.serverAddress ? ldapData.serverAddress : undefined,
@@ -466,6 +470,7 @@ export default class LDAP extends Component {
             {getFieldDecorator('objectClass', {
               rules: [{
                 required: true,
+                whitespace: true,
                 message: intl.formatMessage({ id: `${intlPrefix}.objectclass.require.msg` }),
               }],
               initialValue: ldapData.objectClass ? ldapData.objectClass : undefined,
@@ -479,6 +484,7 @@ export default class LDAP extends Component {
             {getFieldDecorator('loginNameField', {
               rules: [{
                 required: true,
+                whitespace: true,
                 message: intl.formatMessage({ id: `${intlPrefix}.loginname.require.msg` }),
               }],
               initialValue: ldapData.loginNameField ? ldapData.loginNameField : undefined,
@@ -492,6 +498,7 @@ export default class LDAP extends Component {
             {getFieldDecorator('emailField', {
               rules: [{
                 required: true,
+                whitespace: true,
                 message: intl.formatMessage({ id: `${intlPrefix}.email.require.msg` }),
               }],
               initialValue: ldapData.emailField ? ldapData.emailField : undefined,

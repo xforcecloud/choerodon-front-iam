@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom';
 import { axios, Content, Header, Page, Permission } from 'choerodon-front-boot';
 import querystring from 'query-string';
 import InstanceStore from '../../../stores/global/instance';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
 
 const FormItem = Form.Item;
 const { Option } = Select;
@@ -169,19 +170,31 @@ export default class Instance extends Component {
 
   render() {
     const { sort: { columnKey, order }, filters, pagination, params } = this.state;
-    const { intl } = this.props;
+    const { intl, AppState } = this.props;
     const columns = [{
       title: <FormattedMessage id={`${intlPrefix}.id`} />,
       dataIndex: 'instanceId',
       key: 'instanceId',
+      width: '30%',
       filters: [],
       filteredValue: filters.instanceId || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.version`} />,
       dataIndex: 'version',
       key: 'version',
+      width: '30%',
       filters: [],
       filteredValue: filters.version || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.port`} />,
       dataIndex: 'pod',
@@ -230,7 +243,7 @@ export default class Instance extends Component {
         </Header>
         <Content
           code={intlPrefix}
-          values={{ name: `${process.env.HEADER_TITLE_NAME || 'Choerodon'}` }}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           <Select
             style={{ width: '512px', marginBottom: '32px' }}

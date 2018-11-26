@@ -1,13 +1,15 @@
 /**
  * Created by hulingfangzi on 2018/7/9.
  */
-import { action, computed, observable } from 'mobx';
+import { action, computed, observable, toJS } from 'mobx';
 import { axios, store } from 'choerodon-front-boot';
 
 @store('ApitestStore')
 class ApitestStore {
   @observable service = [];
-  @observable currentService = {};
+  @observable currentService = [];
+  @observable currentVersion = [];
+  @observable versions = ['asdasd', 'asd'];
   @observable apiData = [];
   @observable isShowModal = false;
   @observable detailFlag = false;
@@ -16,13 +18,72 @@ class ApitestStore {
   @observable modalSaving = false;
   @observable userInfo = null;
   @observable isShowResult = null;
+  @observable isExpand = new Set();
   @observable apiDetail = {
     description: '[]',
     responses: [],
   };
+  @observable initData = null; // 用来缓存APITest列表页的state实现打开新的page然后返回仍在离开时的分页
+  @observable needReload = true; // 只有跳转到api详情界面然后回到api列表才不需要reload
+  @observable filters = [];
+
+  @action setFilters(filters) {
+    this.filters = filters;
+  }
+
+  @computed get getFilters() {
+    return this.filters;
+  }
+
+  @computed get getFilteredData() {
+    const a = this.apiData;
+    if (this.filters.length === 0) return a;
+    const filteredController = a.slice().filter((controller) => {
+      const matchAPI = controller.paths && controller.paths.slice().filter(api => (
+        this.filters.some(str => api.url.indexOf(str) !== -1 || controller.name.indexOf(str) !== -1)
+      ));
+      return matchAPI.length > 0;
+    });
+    if (filteredController.length > 0) {
+      const ret = [];
+      toJS(filteredController).forEach((v, i) => {
+        ret.push({ description: v.description, name: v.name });
+        const matchAPI = v.paths && v.paths.slice().filter(api => this.filters.some(str => api.url.indexOf(str) !== -1));
+        if (v.name.indexOf(this.filters) !== -1) {
+          ret[i].paths = v.paths;
+        } else {
+          ret[i].paths = matchAPI.slice();
+        }
+      });
+      return ret;
+    } else {
+      return [];
+    }
+  }
+
+
+  @action setNeedReload(flag) {
+    this.needReload = flag;
+  }
 
   @action setDetailFlag(flag) {
     this.detailFlag = flag;
+  }
+
+  @action setIsExpand(name) {
+    if (this.isExpand.has(name)) {
+      this.isExpand.delete(name);
+    } else {
+      this.isExpand.add(name);
+    }
+  }
+
+  @action clearIsExpand() {
+    this.isExpand.clear();
+  }
+
+  @action setVersions(data) {
+    this.versions = data;
   }
 
   @action setLoading(flag) {
@@ -41,8 +102,28 @@ class ApitestStore {
     this.userInfo = data;
   }
 
+  @action setInitData(data) {
+    this.initData = data;
+  }
+
+  @computed get getNeedReload() {
+    return this.needReload;
+  }
+
+  @computed get getInitData() {
+    return this.initData;
+  }
+
   @computed get getUserInfo() {
     return this.userInfo;
+  }
+
+  @computed get getIsExpand() {
+    return this.isExpand;
+  }
+
+  @computed get getExpandKeys() {
+    return [...this.isExpand];
   }
 
   @action setIsShowModal(flag) {
@@ -61,8 +142,16 @@ class ApitestStore {
     this.currentService = data;
   }
 
+  @action setCurrentVersion(data) {
+    this.currentVersion = data;
+  }
+
   @computed get getCurrentService() {
     return this.currentService;
+  }
+
+  @computed get getCurrentVersion() {
+    return this.currentVersion;
   }
 
   @action setApiToken(data) {

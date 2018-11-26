@@ -1,0 +1,21 @@
+.c7n-organization-detail-row {
+  margin-bottom: 12px;
+
+  div:first-child {
+    width: 11.5%;
+  }
+
+  div:last-child {
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  &-hide {
+    display: none;
+  }
+}
+
+.c7n-iam-organization-sidebar {
+  &.ant-modal-sidebar .ant-modal-body {
+    height: calc(100% - 132px);
+  }
+}

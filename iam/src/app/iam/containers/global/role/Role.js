@@ -6,6 +6,8 @@ import { injectIntl, FormattedMessage } from 'react-intl';
 import { Action, Content, Header, Page, Permission } from 'choerodon-front-boot';
 import RoleStore from '../../../stores/global/role/RoleStore';
 import './Role.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
+import StatusTag from '../../../components/statusTag';
 
 const intlPrefix = 'global.role';
 @Form.create({})
@@ -133,8 +135,10 @@ export default class Role extends Component {
     RoleStore.getRoleById(record.id).then((data) => {
       RoleStore.setChosenLevel(data.level);
       RoleStore.setSelectedRolesPermission(data.permissions);
+      RoleStore.loadRoleLabel(data.level);
       this.linkToChange('role/create');
     }).catch((err) => {
+      Choerodon.handleResponseError(err);
     });
   }
 
@@ -161,24 +165,6 @@ export default class Role extends Component {
     });
   };
 
-  renderBuiltIn(record) {
-    if (record.builtIn) {
-      return (
-        <div>
-          <Icon type="settings" style={{ verticalAlign: 'text-bottom' }} />
-          <FormattedMessage id={`${intlPrefix}.builtin.predefined`} />
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <Icon type="av_timer" style={{ verticalAlign: 'text-bottom' }} />
-          <FormattedMessage id={`${intlPrefix}.builtin.custom`} />
-        </div>
-      );
-    }
-  }
-
   renderLevel(text) {
     if (text === 'organization') {
       return <FormattedMessage id="organization" />;
@@ -190,7 +176,7 @@ export default class Role extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, AppState } = this.props;
     const { sort: { columnKey, order }, pagination, filters, params } = this.state;
     const selectedRowKeys = this.getSelectedRowKeys();
     const columns = [{
@@ -202,18 +188,30 @@ export default class Role extends Component {
       title: <FormattedMessage id="name" />,
       dataIndex: 'name',
       key: 'name',
+      width: '25%',
       filters: [],
       sorter: true,
       sortOrder: columnKey === 'name' && order,
       filteredValue: filters.name || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id="code" />,
       dataIndex: 'code',
       key: 'code',
+      width: '25%',
       filters: [],
       sorter: true,
       sortOrder: columnKey === 'code' && order,
       filteredValue: filters.code || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id="level" />,
       dataIndex: 'level',
@@ -244,7 +242,12 @@ export default class Role extends Component {
         text: intl.formatMessage({ id: `${intlPrefix}.builtin.custom` }),
         value: 'false',
       }],
-      render: (text, record) => this.renderBuiltIn(record),
+      render: (text, record) => (
+        <StatusTag
+          mode="icon"
+          name={intl.formatMessage({ id: record.builtIn ? 'predefined' : 'custom' })}
+          colorCode={record.builtIn ? 'PREDEFINE' : 'CUSTOM'}
+        />),
       sorter: true,
       sortOrder: columnKey === 'builtIn' && order,
       filteredValue: filters.builtIn || [],
@@ -259,7 +262,7 @@ export default class Role extends Component {
         text: intl.formatMessage({ id: 'disable' }),
         value: 'false',
       }],
-      render: text => intl.formatMessage({ id: text ? 'enable' : 'disable' }),
+      render: enabled => (<StatusTag mode="icon" name={intl.formatMessage({ id: enabled ? 'enable' : 'disable' })} colorCode={enabled ? 'COMPLETED' : 'DISABLE'} />),
       sorter: true,
       sortOrder: columnKey === 'enabled' && order,
       filteredValue: filters.enabled || [],
@@ -298,7 +301,7 @@ export default class Role extends Component {
             action: this.handleEnable.bind(this, record),
           });
         }
-        return <Action data={actionDatas} />;
+        return <Action data={actionDatas} getPopupContainer={() => document.getElementsByClassName('page-content')[0]} />;
       },
     }];
     const rowSelection = {
@@ -358,6 +361,7 @@ export default class Role extends Component {
         </Header>
         <Content
           code={intlPrefix}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           <Table
             columns={columns}

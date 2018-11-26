@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 import { inject, observer } from 'mobx-react';
-import { Button, Table, Tooltip, Modal } from 'choerodon-ui';
+import { Button, Table, Tooltip, Modal, Icon } from 'choerodon-ui';
 import { Content, Header, Page } from 'choerodon-front-boot';
 import { injectIntl, FormattedMessage } from 'react-intl';
-import SagaImg from './../saga/SagaImg';
+import SagaImg from '../saga/SagaImg';
 import SagaInstanceStore from '../../../stores/global/saga-instance/SagaInstanceStore';
 import './style/saga-instance.scss';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
+import StatusTag from '../../../components/statusTag';
 
 const intlPrefix = 'global.saga-instance';
 const { Sidebar } = Modal;
@@ -22,6 +24,7 @@ export default class SagaInstance extends Component {
 
   getInitState() {
     return {
+      data: '',
       visible: false,
       pagination: {
         current: 1,
@@ -123,38 +126,6 @@ export default class SagaInstance extends Component {
     });
   }
 
-  renderStatus(status) {
-    let obj = {};
-    switch (status) {
-      case 'RUNNING':
-        obj = {
-          key: 'running',
-          value: '运行中',
-        };
-        break;
-      case 'FAILED':
-        obj = {
-          key: 'failed',
-          value: '失败',
-        };
-        break;
-      case 'NON_CONSUMER':
-      case 'COMPLETED':
-        obj = {
-          key: 'completed',
-          value: '完成',
-        };
-        break;
-      default:
-        break;
-    }
-    return (
-      <span className={`c7n-saga-instance-status ${obj.key}`}>
-        {obj.value}
-      </span>
-    );
-  }
-
   renderTable() {
     const { intl } = this.props;
     const { filters, activeTab } = this.state;
@@ -169,7 +140,7 @@ export default class SagaInstance extends Component {
         title: <FormattedMessage id={`${intlPrefix}.status`} />,
         key: 'status',
         dataIndex: 'status',
-        render: status => this.renderStatus(status),
+        render: status => (<StatusTag mode="icon" name={intl.formatMessage({ id: status.toLowerCase() })} colorCode={status} />),
         filters: activeTab === 'all' ? [{
           value: 'RUNNING',
           text: '运行中',
@@ -177,7 +148,7 @@ export default class SagaInstance extends Component {
           value: 'FAILED',
           text: '失败',
         }, {
-          value: 'COMPLETED',
+          value: 'COMPLETED' || 'NON_CONSUMER',
           text: '完成',
         }] : null,
         filteredValue: (activeTab === 'all' && filters.status) || [],
@@ -195,9 +166,15 @@ export default class SagaInstance extends Component {
       {
         title: <FormattedMessage id={`${intlPrefix}.saga`} />,
         key: 'sagaCode',
+        width: '25%',
         dataIndex: 'sagaCode',
         filters: [],
         filteredValue: filters.sagaCode || [],
+        render: text => (
+          <MouseOverWrapper text={text} width={0.2}>
+            {text}
+          </MouseOverWrapper>
+        ),
       },
       {
         title: <FormattedMessage id={`${intlPrefix}.reftype`} />,
@@ -217,7 +194,7 @@ export default class SagaInstance extends Component {
       },
       {
         title: '',
-        width: '100px',
+        width: '50px',
         key: 'action',
         align: 'right',
         render: (text, record) => (
@@ -254,6 +231,7 @@ export default class SagaInstance extends Component {
 
   render() {
     const { data, activeTab } = this.state;
+    const { AppState } = this.props;
     return (
       <Page
         className="c7n-saga-instance"
@@ -272,6 +250,7 @@ export default class SagaInstance extends Component {
         </Header>
         <Content
           code={intlPrefix}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           <div className="c7n-saga-instance-btns">
             <span className="text">
@@ -300,6 +279,7 @@ export default class SagaInstance extends Component {
             <Content
               className="sidebar-content"
               code={`${intlPrefix}.detail`}
+              values={{ name: data.id }}
             >
               <SagaImg data={data} instance />
             </Content>

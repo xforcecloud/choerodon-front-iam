@@ -9,6 +9,9 @@ import { withRouter } from 'react-router-dom';
 import { Action, axios, Content, Header, Page, Permission } from 'choerodon-front-boot';
 import querystring from 'query-string';
 import ConfigurationStore from '../../../stores/global/configuration';
+import MouseOverWrapper from '../../../components/mouseOverWrapper';
+import './Configuration.scss';
+import '../../../common/ConfirmModal.scss';
 
 const FormItem = Form.Item;
 const Option = Select.Option;
@@ -183,6 +186,7 @@ export default class Configuration extends Component {
   deleteConfig = (record) => {
     const { intl } = this.props;
     Modal.confirm({
+      className: 'c7n-iam-confirm-modal',
       title: intl.formatMessage({ id: `${intlPrefix}.delete.title` }),
       content: intl.formatMessage({ id: `${intlPrefix}.delete.content` }, { name: record.name }),
       onOk: () => {
@@ -240,25 +244,43 @@ export default class Configuration extends Component {
   }
 
   render() {
-    const { intl } = this.props;
+    const { intl, AppState } = this.props;
     const { sort: { columnKey, order }, filters, pagination, params } = this.state;
     const columns = [{
       title: <FormattedMessage id={`${intlPrefix}.id`} />,
       dataIndex: 'name',
       key: 'name',
+      width: '25%',
       filters: [],
       filteredValue: filters.name || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.version`} />,
       dataIndex: 'configVersion',
       key: 'configVersion',
+      width: '25%',
       filters: [],
       filteredValue: filters.configVersion || [],
+      render: text => (
+        <MouseOverWrapper text={text} width={0.2}>
+          {text}
+        </MouseOverWrapper>
+      ),
     }, {
       title: <FormattedMessage id={`${intlPrefix}.publictime`} />,
       dataIndex: 'publicTime',
       key: 'publicTime',
-    }, {
+    },
+    {
+      title: <FormattedMessage id={`${intlPrefix}.modifytime`} />,
+      dataIndex: 'lastUpdateDate',
+      key: 'lastUpdateDate',
+    },
+    {
       title: <FormattedMessage id={`${intlPrefix}.isdefault`} />,
       dataIndex: 'isDefault',
       key: 'isDefault',
@@ -284,12 +306,6 @@ export default class Configuration extends Component {
           text: intl.formatMessage({ id: `${intlPrefix}.create.base` }),
           action: this.createByThis.bind(this, record),
         }, {
-          service: ['manager-service.config.updateConfigDefault'],
-          type: 'site',
-          icon: '',
-          text: intl.formatMessage({ id: `${intlPrefix}.setdefault` }),
-          action: this.setDefaultConfig.bind(this, record.id),
-        }, {
           service: ['manager-service.config.updateConfig'],
           type: 'site',
           icon: '',
@@ -303,9 +319,15 @@ export default class Configuration extends Component {
             icon: '',
             text: intl.formatMessage({ id: 'delete' }),
             action: this.deleteConfig.bind(this, record),
+          }, {
+            service: ['manager-service.config.updateConfigDefault'],
+            type: 'site',
+            icon: '',
+            text: intl.formatMessage({ id: `${intlPrefix}.setdefault` }),
+            action: this.setDefaultConfig.bind(this, record.id),
           });
         }
-        return <Action data={actionsDatas} />;
+        return <Action data={actionsDatas} getPopupContainer={() => document.getElementsByClassName('page-content')[0]} />;
       },
     }];
     return (
@@ -337,7 +359,7 @@ export default class Configuration extends Component {
         </Header>
         <Content
           code={intlPrefix}
-          values={{ name: `${process.env.HEADER_TITLE_NAME || 'Choerodon'}` }}
+          values={{ name: AppState.getSiteInfo.systemName || 'Choerodon' }}
         >
           {this.filterBar}
           <Table
@@ -348,6 +370,7 @@ export default class Configuration extends Component {
             filters={params}
             onChange={this.handlePageChange}
             rowKey="id"
+            className="c7n-configuration-table"
             filterBarPlaceholder={intl.formatMessage({ id: 'filtertable' })}
           />
         </Content>
