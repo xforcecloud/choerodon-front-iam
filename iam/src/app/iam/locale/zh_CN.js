@@ -1137,7 +1137,7 @@ const zh_CN = {
   'global.system-setting.reset.confirm.title': '重置配置',
   'global.system-setting.reset.confirm.content': '确定要重置系统自定义配置吗？您的自定义配置将被删除。',
   'global.system-setting.reset': '重置成功',
-  
+
   // 组织层
   // 项目管理
   'organization.project.code.exist.msg': '项目编码已存在，请输入其他项目编码',
@@ -1278,12 +1278,12 @@ const zh_CN = {
   'organization.user.header.title': '用户管理',
   'organization.user.name.space.msg': '输入存在空格，请检查',
   'organization.user.name.samepwd.msg': '登录名不能与密码相同',
-  'organization.user.name.exist.msg': '已存在该登录名，请输入其他登录名',
+  'organization.user.name.exist.msg': '已存在该登录名或者格式不符合，请重新输入',
   'organization.user.password.unrepeat.msg': '两次密码输入不一致',
   'organization.user.email.used.msg': '该邮箱已被使用，请输入其他邮箱',
   'organization.user.addinfo.pattern.msg': '请输入json格式的数据',
   'organization.user.loginname.require.msg': '请输入登录名',
-  'organization.user.loginname.pattern.msg': '登录名只能包含数字和字母',
+  'organization.user.loginname.pattern.msg': '请检查登录名是否为正确的邮箱格式',
   'organization.user.realname.require.msg': '请输入用户名',
   'organization.user.email.require.msg': '请输入邮箱',
   'organization.user.email.pattern.msg': '请输入正确的邮箱',

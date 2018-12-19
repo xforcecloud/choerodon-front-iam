@@ -272,7 +272,7 @@ export default class UserEdit extends Component {
                   whitespace: true,
                   message: intl.formatMessage({ id: `${intlPrefix}.loginname.require.msg` }),
                 }, {
-                  pattern: /^[0-9a-zA-Z]+$/,
+                  pattern: /^([0-9A-Za-z\-_\.]+)@([0-9a-z]+\.[a-z]{2,3}(\.[a-z]{2})?)$/,
                   message: intl.formatMessage({ id: `${intlPrefix}.loginname.pattern.msg` }),
                 }, {
                   validator: this.checkUsername,
