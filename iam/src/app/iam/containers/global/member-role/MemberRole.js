@@ -1235,6 +1235,15 @@ export default class MemberRole extends Component {
     const filtersRole = [...new Set(roleMemberDatas.map(({ name }) => (name)))].map(value => ({ value, text: value }));
     const columns = [
       {
+        title: <FormattedMessage id="user.proinfo.belongorg" />,
+        dataIndex: 'organizationName',
+        key: 'organizationName',
+        width: 150,
+        filters: [],
+        filteredValue: memberRoleFilters.organizationName || [],
+        render: this.renderSimpleColumn,
+      },
+      {
         title: <FormattedMessage id="memberrole.loginname" />,
         dataIndex: 'loginName',
         key: 'loginName',
