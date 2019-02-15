@@ -4,7 +4,7 @@ import queryString from 'query-string';
 
 // const baseUrl = "http://localhost:8082";
 
-const baseUrl = "/collector/";
+const baseUrl = "/collector";
 
 @store('TcpIngressSettingStore')
 class TcpIngressSettingStore {
