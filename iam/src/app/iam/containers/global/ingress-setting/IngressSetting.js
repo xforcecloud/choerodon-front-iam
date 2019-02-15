@@ -100,7 +100,11 @@ export default class IngeressSetting extends Component {
   handleDisable = (data) => {
     const { form, TcpIngressSettingStore } = this.props;
 
-    TcpIngressSettingStore.removeConfig();
+    TcpIngressSettingStore.removeConfig(data.id)
+    .then((message) => {
+      TcpIngressSettingStore.refresh();
+      Choerodon.prompt(intl.formatMessage({ id: message }));
+    });;
 
   };
 

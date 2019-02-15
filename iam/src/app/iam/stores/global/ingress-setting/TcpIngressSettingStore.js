@@ -2,6 +2,10 @@ import { action, computed, observable } from 'mobx';
 import { axios, store } from 'choerodon-front-boot';
 import queryString from 'query-string';
 
+// const baseUrl = "http://localhost:8082";
+
+const baseUrl = "/collector/";
+
 @store('TcpIngressSettingStore')
 class TcpIngressSettingStore {
 
@@ -45,7 +49,21 @@ class TcpIngressSettingStore {
 
   @action
   removeConfig(id){
-
+    let url = `${baseUrl}/v1/collector/task/ingress-config/${id}`;
+    return axios["delete"](url).then(action((data) => {
+        this.submitting = false;
+        if (data.code == -1) {
+          return data.message;
+        } else {
+          this.sidebarVisible = false;
+          this.refresh();
+          return "global.ingress-setting.success";
+        }
+    }))
+    .catch(action((error) => {
+      this.submitting = false;
+      Choerodon.handleResponseError(error);
+    }));
   }
 
   @computed get getClusterItem() {
@@ -60,7 +78,7 @@ class TcpIngressSettingStore {
   createRequest(values){
     const { net: { servicePath, targetPort }, port, type} = values
     let method = "post";
-    let url= "http://localhost:8082/v1/collector/task/add";
+    let url= "${baseUrl}/v1/collector/task/add";
     const { tpClusterId } = this;
     if(!tpClusterId){
       return Promise.reject('没有选择clusterId')
@@ -101,7 +119,7 @@ class TcpIngressSettingStore {
 
   @action
   loadCluster(){
-    return axios.get(`http://localhost:8082/v1/collector/cluster/list`)
+    return axios.get(`${baseUrl}/v1/collector/cluster/list`)
       .then(action((data) => {
           console.log("Content is "  + data);
           this.clusterItem = data;
@@ -128,7 +146,7 @@ class TcpIngressSettingStore {
     this.sort = sort;
     this.params = params;
     ///{cluster_id}/task/list
-    return axios.get(`http://localhost:8082/v1/collector/task/ingress-config/${this.tpClusterId}/list` )
+    return axios.get(`${baseUrl}/v1/collector/task/ingress-config/${this.tpClusterId}/list` )
       .then(action((data) => {
 
         console.log("Content is "  + data);
