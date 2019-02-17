@@ -78,7 +78,7 @@ class TcpIngressSettingStore {
   createRequest(values){
     const { net: { servicePath, targetPort }, port, type} = values
     let method = "post";
-    let url= "${baseUrl}/v1/collector/task/add";
+    let url= `${baseUrl}/v1/collector/task/add`;
     const { tpClusterId } = this;
     if(!tpClusterId){
       return Promise.reject('没有选择clusterId')
