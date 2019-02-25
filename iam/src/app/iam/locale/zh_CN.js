@@ -1111,6 +1111,24 @@ const zh_CN = {
   'global.dashboard-setting.card.title': '卡片标题',
   'global.dashboard-setting.card.title.required': '请输入卡片标题',
 
+  //tcp ingress SystemSettingStore
+  'global.ingress-setting.header': 'TCP/UDP Ingress 设置',
+  'global.ingress-setting.title': 'TCP/UDP Ingress 设置',
+  'global.ingress-setting.description': '提供对外长连接',
+  'global.ingress-setting.create.title': '创建Ingress',
+  'global.ingress-setting.create.description': '选择对应的端口以及需要暴露的网络',
+  'global.ingress-setting.create': '创建',
+  'global.ingress-setting.target': '目标网络',
+  'global.ingress-setting.port': '暴露的端口',
+  'global.ingress-setting.port.required': '需要输入对外暴露端口',
+  'global.ingress-setting.noCluster': '选择集群',
+  'global.ingress-setting.port.check.failed': '端口格式不正确',
+  'global.ingress-setting.status_0': '等待操作中',
+  'global.ingress-setting.status_-1': '操作失败',
+  'global.ingress-setting.targetPort': '端口设置',
+  'global.ingress-setting.type': '网络类型',
+  'global.ingress-setting.success': '操作成功',
+
   // 系统设置
   'global.system-setting.header': '系统设置',
   'global.system-setting.title': '对平台的自定义设置',
@@ -1138,6 +1156,20 @@ const zh_CN = {
   'global.system-setting.reset.confirm.title': '重置配置',
   'global.system-setting.reset.confirm.content': '确定要重置系统自定义配置吗？您的自定义配置将被删除。',
   'global.system-setting.reset': '重置成功',
+
+
+
+  "admin.cluster.owner.title" : "自定义",
+  "admin.cluster.owner.description": "自定义",
+  "owner.org": "组织",
+  "owner.pro": "项目",
+  "owner.port": "端口",
+  "owner.env": "环境",
+  "owner.net": "网络",
+  "owner.org.none": "未搜索到组织",
+  "owner.pro.none": "未搜索到项目",
+  "owner.env.none": "未搜索到环境",
+  "owner.net.none": "未搜索到网络",
 
   // 组织层
   // 项目管理

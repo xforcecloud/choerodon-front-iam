@@ -7,9 +7,9 @@ const config = {
     'primary-color': '#3F51B5',
   },
   cookieServer: '', //  子域名token共享
-  server: 'https://api.choerodon.com.cn',
-  fileServer: 'http://minio.staging.saas.hand-china.com',
-  webSocketServer: 'ws://notify.staging.saas.hand-china.com',
+  server: 'http://api.choerodon.xforceplus.com',
+  fileServer: 'http://minio.choerodon.xforceplus.com',
+  webSocketServer: 'ws://notify.choerodon.xforceplus.com',
   dashboard: {
     iam: {
       components: 'src/app/iam/dashboard/*',
