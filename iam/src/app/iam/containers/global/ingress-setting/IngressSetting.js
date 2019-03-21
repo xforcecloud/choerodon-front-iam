@@ -313,7 +313,7 @@ export default class IngeressSetting extends Component {
         <Header title={ <FormattedMessage id={`${intlPrefix}.header`} /> }>
           <Select
             size='large'
-            className='c7n-header-select'
+            className='c7n-header-select cluster'
             dropdownClassName="c7n-header-env_drop"
             placeholder={intl.formatMessage({ id: 'global.ingress-setting.noCluster' })}
             value={clusterItem && clusterItem.length ? clusterId : undefined}
