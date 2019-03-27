@@ -1129,6 +1129,18 @@ const zh_CN = {
   'global.ingress-setting.type': '网络类型',
   'global.ingress-setting.success': '操作成功',
 
+  //istio header
+  'global.istio-setting.header': 'ISTIO模板配置',
+  'global.istio-setting.task.title': 'ISTIO任务列表',
+  'global.istio-setting.task.description' :'ISTIO请求的任务列表',
+  'global.istio-setting.task': 'ISTIO任务列表',
+  'tplId': '模板编号',
+  'kind': '模板类型',
+  'namespace': '命名空间',
+  'createTime': '创建时间',
+  'modifyTime': '修改时间',
+  'configVal': '配置参数' ,
+
   // 系统设置
   'global.system-setting.header': '系统设置',
   'global.system-setting.title': '对平台的自定义设置',

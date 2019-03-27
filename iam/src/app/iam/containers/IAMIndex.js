@@ -33,6 +33,7 @@ const taskDetail = asyncRouter(() => import('./global/task-detail'));
 const executionRecord = asyncRouter(() => import('./global/execution-record'));
 const executableProgram = asyncRouter(() => import('./global/executable-program'));
 const tcpudpIngressSetting = asyncRouter(() => import('./global/ingress-setting'));
+const istioSetting = asyncRouter(() => import('./global/istio-setting'));
 
 
 // organization
@@ -75,6 +76,7 @@ class IAMIndex extends React.Component {
           <Route path={`${match.url}/mail-setting`} component={mailSetting} />
           <Route path={`${match.url}/system-setting`} component={systemSetting} />
           <Route path={`${match.url}/ingress-setting`} component={tcpudpIngressSetting} />
+          <Route path={`${match.url}/istio-setting`} component={istioSetting} />
           <Route path={`${match.url}/send-setting`} component={sendSetting} />
           <Route path={`${match.url}/microservice`} component={microService} />
           <Route path={`${match.url}/organization`} component={organization} />
