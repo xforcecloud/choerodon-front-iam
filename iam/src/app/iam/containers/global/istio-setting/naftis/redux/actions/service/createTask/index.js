@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import axios from '../../../../commons/axios'
+import { mole_url } from '../../../actions/global'
 
 const TYPE = {
   SET_CURRENT_STEP: 'SET_CURRENT_STEP',
@@ -63,7 +64,7 @@ const setCreateStatusData = (createStatus) => ({
 const submitCreateTempAjax = (data, fn) => {
   return dispatch => {
     axios.getAjax({
-      url: 'http://localhost:8081/istio/apply',
+      url: `${mole_url}/istio/apply`,
       type: 'POST',
       data: data
     }).then(response => {

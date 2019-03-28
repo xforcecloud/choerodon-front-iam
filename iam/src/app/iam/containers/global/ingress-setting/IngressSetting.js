@@ -115,6 +115,7 @@ export default class IngeressSetting extends Component {
     TcpIngressSettingStore.loadData();
   };
 
+
   getTableColumns(){
     const { intl, TcpIngressSettingStore: { sort: { columnKey, order }, filters } } = this.props;
     return [{
