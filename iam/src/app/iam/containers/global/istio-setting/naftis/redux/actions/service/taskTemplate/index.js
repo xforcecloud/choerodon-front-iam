@@ -175,7 +175,7 @@ const getTemplateDetailById =  (data, fn) => {
   return dispatch => {
     axios
       .getAjax({
-        url:  `${mole_url}/template/detail/${id`,
+        url:  `${mole_url}/template/detail/${id}`,
         type: 'GET'
       })
       .then(response => {
