@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import { observer, inject } from 'mobx-react';
 import { FormattedMessage, injectIntl } from 'react-intl';
 import { Content, Header, Page } from 'choerodon-front-boot';
-import { Table, Button, Checkbox, Modal } from 'choerodon-ui';
-import './ReceiveSetting.scss';
+import { Table, Button, Checkbox, Modal, Tooltip } from 'choerodon-ui';
 import { Prompt } from 'react-router-dom';
 import ReceiveSettingStore from '../../../stores/user/receive-setting/ReceiveSettingStore';
 
@@ -29,7 +28,7 @@ export default class ReceiveSetting extends Component {
       ReceiveSettingStore.setLoading(false);
       ReceiveSettingStore.setDirty(false);
     }).catch((error) => {
-      Choerodon.prompt(`${error.response.status} ${error.response.statusText}`);
+      // Choerodon.prompt(`${error.response.status} ${error.response.statusText}`);
       Choerodon.handleResponseError(error);
       ReceiveSettingStore.setLoading(false);
     });
@@ -68,6 +67,59 @@ export default class ReceiveSetting extends Component {
     }
   };
 
+  isCheckDisabled = (record, type) => {
+    const level = record.id.split('-')[0];
+    if ('settings' in record) {
+      let allDisable = true;
+      ReceiveSettingStore.getAllowConfigData.forEach((value, key) => {
+        if (value.type === level) {
+          const allowConfigData = ReceiveSettingStore.getAllowConfigData.get(key);
+          if (allowConfigData && allowConfigData.disabled && !allowConfigData.disabled[type]) {
+            allDisable = false;
+          }
+        }
+      });
+      return allDisable;
+    }
+    const allowConfigData = ReceiveSettingStore.getAllowConfigData.get(parseInt(record.id.split('-')[2], 10));
+    return allowConfigData && allowConfigData.disabled && allowConfigData.disabled[type];
+  };
+
+  getCheckbox = (record, type) => {
+    if (this.isCheckDisabled(record, type)) {
+      return (
+        <Checkbox
+          key={record.id ? record.id : `${record.id}-${record.sendSettingId}`}
+          disabled
+        />
+      );
+    } else {
+      return (
+        <Checkbox
+          key={record.id ? record.id : `${record.id}-${record.sendSettingId}`}
+          indeterminate={record.id ? (type === 'pm' ? record.pmIndeterminate : record.mailIndeterminate) : false}
+          onChange={e => this.handleCheckChange(e, record.id, type)}
+          checked={type === 'pm' ? record.pmChecked : record.mailChecked}
+        />
+      );
+    }
+  };
+
+  getTitleCheckbox = (type) => {
+    const { intl } = this.props;
+    return (
+      <Checkbox
+        key={type}
+        indeterminate={!ReceiveSettingStore.isAllSelected(type) && !ReceiveSettingStore.isAllUnSelected(type)}
+        checked={ReceiveSettingStore.isAllSelected(type) && !ReceiveSettingStore.getDataSource.every(record => this.isCheckDisabled(record, type))}
+        onChange={() => this.handleCheckAllChange(type)}
+        disabled={ReceiveSettingStore.getDataSource.every(record => this.isCheckDisabled(record, type))}
+      >
+        {intl.formatMessage({ id: type })}
+      </Checkbox>
+    );
+  };
+
   render() {
     const { intl } = this.props;
     const promptMsg = intl.formatMessage({ id: 'global.menusetting.prompt.inform.title' }) + Choerodon.STRING_DEVIDER + intl.formatMessage({ id: 'global.menusetting.prompt.inform.message' });
@@ -80,50 +132,22 @@ export default class ReceiveSetting extends Component {
       width: '20%',
       render: (text, record) => intl.formatMessage({ id: record.id.split('-')[0] }),
     }, {
-      title: (
-        <Checkbox
-          key="pm"
-          indeterminate={!ReceiveSettingStore.isAllSelected('pm') && !ReceiveSettingStore.isAllUnSelected('pm')}
-          checked={ReceiveSettingStore.isAllSelected('pm')}
-          onChange={() => this.handleCheckAllChange('pm')}
-        >
-          {intl.formatMessage({ id: 'pm' })}
-        </Checkbox>
-      ),
+      title: this.getTitleCheckbox('pm'),
       width: '15%',
-      render: (text, record) => (
-        <Checkbox
-          key={record.id ? record.id : `${record.id}-${record.sendSettingId}`}
-          indeterminate={record.id ? record.pmIndeterminate : false}
-          onChange={e => this.handleCheckChange(e, record.id, 'pm')}
-          checked={record.pmChecked}
-        />
-      ),
+      render: (text, record) => this.getCheckbox(record, 'pm'),
     }, {
-      title: (
-        <Checkbox
-          key="email"
-          indeterminate={!ReceiveSettingStore.isAllSelected('email') && !ReceiveSettingStore.isAllUnSelected('email')}
-          checked={ReceiveSettingStore.isAllSelected('email')}
-          onChange={() => this.handleCheckAllChange('email')}
-        >
-          {intl.formatMessage({ id: 'email' })}
-        </Checkbox>
-      ),
+      title: this.getTitleCheckbox('email'),
       width: '15%',
-      render: (text, record) => (
-        <Checkbox
-          key={record.id ? record.id : `${record.id}-${record.sendSettingId}`}
-          indeterminate={record.id ? record.mailIndeterminate : false}
-          onChange={e => this.handleCheckChange(e, record.id, 'email')}
-          checked={record.mailChecked}
-        />
-      ),
+      render: (text, record) => this.getCheckbox(record, 'email'),
     }];
 
     return (
       <Page
-        service={[]}
+        service={[
+          'notify-service.receive-setting.update',
+          'notify-service.receive-setting.updateByUserId',
+          'notify-service.receive-setting.queryByUserId',
+        ]}
       >
         <Header title={<FormattedMessage id={`${intlPrefix}.header.title`} />}>
           <Button onClick={this.refresh} icon="refresh">

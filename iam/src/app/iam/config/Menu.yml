@@ -133,10 +133,18 @@
     - "api-test":
         icon: APItest
         Routes: /iam/api-test
+        sort: 2
+        permission:
+        - 'manager-service.api.queryTreeMenu'
+        - 'manager-service.api.queryPathDetail'
+    - "api-overview":
+        icon: dashboard
+        Routes: /iam/api-overview
         sort: 1
         permission:
-        - 'manager-service.service.pageManager'
-        - 'manager-service.api.queryPathDetail'
+        - 'manager-service.api.queryInstancesAndApiCount'
+        - 'manager-service.api.queryApiInvoke'
+        - 'manager-service.api.queryServiceInvoke'
 
 # 消息中心
 "msg-center":
@@ -183,6 +191,14 @@
         sort: 5
         permission:
         - 'notify-service.message-record-site.pageEmail'
+    - "announcement":
+        icon: volume_up
+        Routes: /iam/announcement
+        sort: 6
+        permission:
+        - 'asgard-service.system-notification.pagingQuerySiteNotification'
+        - 'asgard-service.system-notification.createNotificationOnSite'
+        - 'asgard-service.system-notification.deleteSiteNotification'
 
 # 任务调度
 "task-dispatch":
@@ -233,6 +249,8 @@
         permission:
           - 'asgard-service.saga-instance.pagingQuery'
           - 'asgard-service.saga-instance.query'
+          - 'asgard-service.saga-instance.statistics'
+          - 'asgard-service.saga-instance.queryDetails'
 
 # 组织设置
 "rentsetting":
@@ -263,6 +281,7 @@
           - 'iam-service.organization-user.disableUser'
           - 'iam-service.organization-user.enableUser'
           - 'iam-service.organization-user.unlock'
+          - 'iam-service.organization-user.resetUserPassword'
     - "member-role-organization":
         icon: person_add
         Routes: /iam/member-role
@@ -319,6 +338,24 @@
           - 'notify-service.email-template-org.delete'
           - 'notify-service.email-template-org.query'
           - 'notify-service.send-setting-org.listNames'
+    - "announcement-organization":
+        icon: volume_up
+        Routes: /iam/announcement
+        delete: true
+        sort: 8
+        permission:
+          - 'asgard-service.system-notification.pagingQueryOrgNotificaton'
+          - 'asgard-service.system-notification.createNotificationOnOrg'
+          - 'asgard-service.system-notification.deleteOrgNotification'
+    - "saga-instance-organization":
+        icon: instance_outline
+        Routes: /iam/saga-instance
+        sort: 9
+        permission:
+        - 'asgard-service.saga-instance-org.pagingQuery'
+        - 'asgard-service.saga-instance-org.statistics'
+        - 'asgard-service.saga-instance-org.query'
+        - 'asgard-service.saga-instance-org.queryDetails'
 
 # 组织层消息中心
 "msg-center-organization":
@@ -409,6 +446,15 @@
           - 'iam-service.project.disableProject'
           - 'iam-service.project.query'
           - 'iam-service.project.update'
+    - "saga-instance-project":
+        icon: instance_outline
+        Routes: /iam/saga-instance
+        sort: 3
+        permission:
+        - 'asgard-service.saga-instance-project.pagingQuery'
+        - 'asgard-service.saga-instance-project.statistics'
+        - 'asgard-service.saga-instance-project.query'
+        - 'asgard-service.saga-instance-project.queryDetails'
 
 # 项目层任务调度
 "task-dispatch-project":
@@ -460,24 +506,31 @@
         sort: 2
         permission:
           - 'iam-service.user.selfUpdatePassword'
+    - "token-manager":
+        icon: authority
+        Routes: /iam/token-manager
+        sort: 3
+        permission:
+          - 'iam-service.access-token.list'
+          - 'iam-service.access-token.delete'
     - "organization-info":
         icon: domain
         Routes: /iam/organization-info
-        sort: 3
+        sort: 4
         permission:
           - 'iam-service.user.listOrganizationAndRoleById'
           - 'iam-service.role.listPermissionById'
     - "project-info":
         icon: project
         Routes: /iam/project-info
-        sort: 4
+        sort: 5
         permission:
           - 'iam-service.user.listProjectAndRoleById'
           - 'iam-service.role.listPermissionById'
     - "user-msg":
         icon: message_notification
         Routes: /iam/user-msg
-        sort: 5
+        sort: 6
         permission:
           - 'notify-service.site-msg-record.pagingQuery'
           - 'notify-service.site-msg-record.batchDeleted'
@@ -485,6 +538,8 @@
     - "receive-setting":
         icon: settings
         Routes: /iam/receive-setting
-        sort: 6
+        sort: 7
         permission:
-        - 'iam-service.user.queryInfo'
+          - 'notify-service.receive-setting.queryByUserId'
+          - 'notify-service.receive-setting.updateByUserId'
+          - 'notify-service.receive-setting.update'

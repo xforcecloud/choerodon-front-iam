@@ -8,10 +8,11 @@ class TaskDetailStore {
   @observable service = [];
   @observable info = {}; // 任务信息
   @observable log = []; // 任务日志
-  @observable currentService = {};
+  @observable currentService = [];
   @observable classNames = []; // 任务类名下拉框数据
   @observable currentClassNames = {}; // 当前任务程序
   @observable currentTask = {};
+  @observable userdata = [];
 
   @action setData(data) {
     this.data = data;
@@ -66,7 +67,16 @@ class TaskDetailStore {
     this.currentTask = data;
   }
 
+  @action setUserData(data) {
+    this.userdata = data;
+  }
+
+  @computed get getUserData() {
+    return this.userdata;
+  }
+
   getLevelType = (type, id) => (type === 'site' ? '' : `/${type}s/${id}`);
+  getRoleLevelType = (type, id) => (type === 'site' ? `/iam/v1/${type}` : `/iam/v1/${type}s/${id}`);
 
   loadData(
     { current, pageSize },
@@ -115,7 +125,34 @@ class TaskDetailStore {
     return axios.get(`/asgard/v1/schedules${this.getLevelType(type, id)}/tasks/instances/${taskId}?${querystring.stringify(queryObj)}`);
   }
 
-  loadService = () => axios.get('manager/v1/services');
+
+  loadUserDatas(
+    { current, pageSize },
+    { columnKey = 'id', order = 'descend' },
+    params, type, id) {
+    const body = {
+      param: params,
+    };
+    const queryObj = {
+      size: pageSize,
+      page: current - 1,
+    };
+    if (columnKey) {
+      const sorter = [];
+      sorter.push(columnKey);
+      if (order === 'descend') {
+        sorter.push('desc');
+      }
+      queryObj.sort = sorter.join(',');
+    }
+    if (type === 'site') {
+      return axios.post(`${this.getRoleLevelType(type, id)}/role_members/users/roles/for_all?${querystring.stringify(queryObj)}`, JSON.stringify(body));
+    } else {
+      return axios.post(`${this.getRoleLevelType(type, id)}/role_members/users/roles?${querystring.stringify(queryObj)}`, JSON.stringify(body));
+    }
+  }
+
+  loadService = (type, id) => axios.get(`/asgard/v1/schedules${this.getLevelType(type, id)}/methods/services`);
 
   loadClass = (service, type, id) => axios.get(`/asgard/v1/schedules${this.getLevelType(type, id)}/methods/service?service=${service}`);
 
@@ -129,7 +166,7 @@ class TaskDetailStore {
   deleteTask = (taskId, type, id) => axios.delete(`/asgard/v1/schedules${this.getLevelType(type, id)}/tasks/${taskId}`);
 
 
-  checkName = (name, type, id) => axios.post(`/asgard/v1/schedules${this.getLevelType(type, id)}/tasks/check?name=${name}`);
+  checkName = (name, type, id) => axios.post(`/asgard/v1/schedules${this.getLevelType(type, id)}/tasks/check`, name);
 
 
   createTask = (body, type, id) => axios.post(`/asgard/v1/schedules${this.getLevelType(type, id)}/tasks`, JSON.stringify(body));

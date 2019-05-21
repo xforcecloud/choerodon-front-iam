@@ -1,4 +1,4 @@
-const docServer = 'http://v0-11.choerodon.io/zh/docs';
+const docServer = 'http://v0-12.choerodon.io/zh/docs';
 
 const pageDetail = {
   // menusetting
@@ -170,8 +170,8 @@ const pageDetail = {
   'global.sendsetting.modify.link': `${docServer}/user-guide/system-configuration/message/send-config/`,
 
   // 消息记录
-  'global.msgrecord.title': '平台"{name}"的消息记录',
-  'global.msgrecord.description': '通过此平台，您可以查看发送状态回执，并且了解发送失败的原因，手动重发发送失败的消息。',
+  'global.msgrecord.title': '平台"{name}"的邮件发送记录',
+  'global.msgrecord.description': '通过此平台，您可以查看邮件发送状态回执，并且了解发送失败的原因，手动重发发送失败的消息。',
   'global.msgrecord.link': `${docServer}/user-guide/system-configuration/message/record/`,
 
   // 邮件模板
@@ -276,6 +276,12 @@ const pageDetail = {
   'organization.memberrole.upload.description': '您可以在此将文件中的角色信息导入到组织中去。注：您必须使用上传模板，请在角色分配界面，点击“下载”下载模板。',
   'organization.memberrole.upload.link': `${docServer}/user-guide/system-configuration/tenant/user/`,
 
+  // 组织事务实例
+  'organization.saga-instance.header.title': '组织事务实例',
+  'organization.saga-instance.title': '组织"{name}"的事务实例',
+  'organization.saga-instance.description': '事务实例属于事务定义，您可以查看事务实例的运行情况并查看事务实例中每个任务的运行情况。',
+  'organization.saga-instance.link': `${docServer}/user-guide/microservice-development/global-transaction/saga-instance/`,
+
   // 客户端
   'organization.client.title': '组织"{name}"的客户端',
   'organization.client.description': '用户在使用oauth2.0的客户端授权模式认证时需要指定所属的客户端，根据客户端对应的密钥，作用域，认证有效时长和重定向地址等进行认证。客户端还可用于区分微服务环境下的不同模块。',
@@ -333,8 +339,8 @@ const pageDetail = {
   'organization.sendsetting.modify.link': '',
 
   // 消息记录
-  'organization.msgrecord.title': '组织"{name}"的消息记录',
-  'organization.msgrecord.description': '通过此平台，您可以查看发送状态回执，并且了解发送失败的原因，手动重发发送失败的消息。',
+  'organization.msgrecord.title': '组织"{name}"的邮件发送记录',
+  'organization.msgrecord.description': '通过此平台，您可以查看邮件发送状态回执，并且了解发送失败的原因，手动重发发送失败的消息。',
   'organization.msgrecord.link': `${docServer}/user-guide/system-configuration/message/record/`,
 
   // 邮件模板
@@ -429,6 +435,12 @@ const pageDetail = {
   'project.memberrole.modify.description': '您可以在此增删改此用户在项目层的角色。',
   'project.memberrole.modify.link': `${docServer}/user-guide/system-configuration/project/role-assignment/`,
 
+  // 项目事务实例
+  'project.saga-instance.header.title': '项目事务实例',
+  'project.saga-instance.title': '项目"{name}"的事务实例',
+  'project.saga-instance.description': '事务实例属于事务定义，您可以查看事务实例的运行情况并查看事务实例中每个任务的运行情况。',
+  'project.saga-instance.link': `${docServer}/user-guide/microservice-development/global-transaction/saga-instance/`,
+
   // 任务调度
   'project.taskdetail.title': '项目"{name}"的任务明细',
   'project.taskdetail.description': '按时间点或者周期性执行的任务。在这里，您可以创建任务，管理任务。控制任务在何种时间状态下执行。',
@@ -502,7 +514,7 @@ const pageDetail = {
   // 富文本编辑器
   'editor.add.pic': '添加图片',
   'editor.pic.url': '图片URL',
-  'editor.view': '浏览',
+  'editor.view': '预览',
   'editor.pic.url.required': '请输入图片URL',
   'editor.back.gui': '返回可视化编辑',
   'editor.preview': '预览区',
@@ -528,6 +540,7 @@ const zh_CN = {
   download: '下载',
   uploading: '导入中',
   loading: '加载中',
+  queue: '队列中',
 
   day: '天',
   hour: '小时',
@@ -750,13 +763,13 @@ const zh_CN = {
   'taskdetail.cron.task': 'Cron任务',
   'taskdetail.cron.expression': 'Cron表达式',
   'taskdetail.cron.expression.required': '请输入Cron表达式',
-  'taskdetail.cron.tip': '请填写Cron表达式, 了解如何填写Cron表达式。',
+  'taskdetail.cron.tip': '请填写Cron表达式',
   'taskdetail.cron.tip.link': `${docServer}/user-guide/microservice-development/job/cron-expression/`,
   'taskdetail.cron.example': '示例',
   'taskdetail.cron.runtime': '第{time}次执行时间:',
   'taskdetail.cron.wrong': 'Cron表达式错误，请重新输入',
   'taskdetail.service.required': '请选择服务名',
-  'taskdetail.task.class.required': '请选择任务类名',
+  'taskdetail.task.class.required': '请选择任务程序',
   'taskdetail.service.name': '服务名',
   'taskdetail.task.class.name': '任务程序',
   'taskdetail.params.name': '参数名称',
@@ -780,7 +793,37 @@ const zh_CN = {
   'taskdetail.noprogram': '无可选任务程序时，无法创建任务',
   'taskdetail.num.required': '请输入数字',
   'taskdetail.default.required': '无默认值时必填',
+  'taskdetail.step1.title': '填写任务基本信息',
+  'taskdetail.step2.title': '配置执行程序',
+  'taskdetail.step3.title': '设置通知对象',
+  'taskdetail.step4.title': '确认信息',
+  'taskdetail.step1.description': '填写任务的名称及描述说明，为任务配置触发条件。您可以选择简单任务或者Cron任务。了解如何填写cron表达式。',
+  'taskdetail.step2.description': '您可以在此配置任务要执行的程序。',
+  'taskdetail.step3.description': '在这里你可以选择任务状态发生变化的通知对象。在任务状态发生变化或者出故障时可以及时通知到相关用户。',
+  'taskdetail.step.next': '下一步',
+  'taskdetail.step.prev': '上一步',
+  'taskdetail.add.specified.user': '添加指定用户',
+  'taskdetail.login.name': '登录名',
+  'taskdetail.real.name': '用户名',
+  'taskdetail.seconds': '秒',
+  'taskdetail.minutes': '分',
+  'taskdetail.hours': '时',
+  'taskdetail.days': '天',
+  'taskdetail.noservice': '无服务',
+  'taskdetail.noprograms': '无任务程序',
+  'taskdetail.creator': '创建者',
+  'taskdetail.manager': '管理员',
+  'taskdetail.user': '指定用户',
+  'taskdetail.site': '平台',
+  'taskdetail.organization': '组织',
+  'taskdetail.project': '项目',
+  'taskdetail.inform.person': '通知对象',
+  'taskdetail.nousers': '暂无指定用户',
+  'taskdetail.simple.trigger': '简单任务',
+  'taskdetail.cron.trigger': 'Cron任务',
+  'taskdetail.empty': '无',
   'taskdetail.number.pattern': '请输入数字',
+
 
   // 执行记录
   'execution.header.title': '执行记录',
@@ -896,9 +939,6 @@ const zh_CN = {
 
   // API测试
   'global.apitest.header.title': 'API测试',
-  'global.apitest.service': '所属微服务',
-  'global.apitest.table.name': '名称/方法',
-  'global.apitest.table.path': '路径',
   'global.apitest.table.description': '描述',
   'global.apitest.available.range': '可用范围',
   'global.apitest.interface.detail': '接口详情',
@@ -941,8 +981,24 @@ const zh_CN = {
   'global.apitest.request.format': '请求格式',
   'global.apitest.response.format': '响应格式',
   'global.apitest.default.role': '默认角色',
-  'global.apitest.inner': '内部',
-  'global.apitest.outer': '外部',
+
+  'global.apitest.filter': '过滤',
+  'global.apitest.empty.find.not': '检测到您未选择任何API',
+  'global.apitest.empty.try.choose': '请在左侧树状图中选择您要查看的API',
+  'global.apitest.apis.repository': '接口库',
+
+  // API概览
+  'global.apioverview.header.title': 'API概览',
+  'global.apioverview.api.total.count': '各服务API总数',
+  'global.apioverview.api.used.count': '各服务API调用总数',
+  'global.apioverview.api.single.count': '单个API调用总数',
+  'global.apioverview.seven': '近7天',
+  'global.apioverview.fifteen': '近15天',
+  'global.apioverview.thirty': '近30天',
+  'global.apioverview.date': '日期',
+  'global.apioverview.used.totalcount': '调用总次数',
+  'global.apioverview.belong': '所属微服务',
+  'global.apioverview.belong.empty': '无服务',
 
   // 发送设置
   'sendsetting.header.title': '发送设置',
@@ -960,6 +1016,7 @@ const zh_CN = {
   'sendsetting.pmtemplate.type': '站内信类型',
   'sendsetting.pmtemplate.msg': '消息',
   'sendsetting.pmtemplate.notice': '通知',
+  'sendsetting.pmtemplate.receive': '允许配置接收',
 
   // 消息记录
   'msgrecord.header.title': '消息记录',
@@ -1085,8 +1142,8 @@ const zh_CN = {
   'global.saga-instance.header.title': '事务实例',
   'global.saga-instance.detail': '事务实例详情',
   'global.saga-instance.view': '查看实例',
-  'global.saga-instance.all': '所有实例',
-  'global.saga-instance.failed': '失败实例',
+  'global.saga-instance.instance': '事务',
+  'global.saga-instance.task': '任务',
   'global.saga-instance.id': 'ID',
   'global.saga-instance.status': '状态',
   'global.saga-instance.start.time': '开始时间',
@@ -1138,6 +1195,25 @@ const zh_CN = {
   'global.system-setting.reset.confirm.title': '重置配置',
   'global.system-setting.reset.confirm.content': '确定要重置系统自定义配置吗？您的自定义配置将被删除。',
   'global.system-setting.reset': '重置成功',
+  'global.system-setting.edit.title': '对平台的{name}进行修改',
+  'global.system-setting.edit.dragger.text': '点击或将图片拖到此区域上传图片',
+  'global.system-setting.edit.dragger.hint': '图片支持PNG、JPG、JPEG格式，且不能大于1M',
+  'global.system-setting.edit.text': '上传徽标',
+  'global.system-setting.edit.hint': '您可以在此裁剪、旋转图片，然后点击"保存" 完成徽标的修改',
+  'global.system-setting.edit.preview': '徽标预览',
+  'global.system-setting.edit.button': '重新上传',
+  'global.system-setting.min-length': '平台默认最小密码长度',
+  'global.system-setting.max-length': '平台默认最大密码长度',
+
+  // 系统公告
+  'global.announcement.header.title': '系统公告',
+  'global.announcement.title': '平台"{name}"的系统公告',
+  'global.announcement.description': '您可以在此编辑系统公告，并且指定时间发送到全局。',
+  'global.announcement.content': '公告内容',
+  'global.announcement.send-time': '发送时间',
+  'global.announcement.sidebar.title': '添加公告',
+  'global.announcement.sidebar.title.detail': '查看公告',
+  'global.announcement.link': `${docServer}/user-guide/system-configuration/message/system-notice/`,
 
   // 组织层
   // 项目管理
@@ -1267,6 +1343,12 @@ const zh_CN = {
   // 用户管理
   'organization.user.unlock': '解锁',
   'organization.user.unlock.success': '解锁成功',
+  'organization.user.unlock.failed': '解锁失败',
+  'organization.user.reset': '重置密码',
+  'organization.user.reset.success': '重置密码成功',
+  'organization.user.reset.failed': '重置密码失败',
+  'organization.user.reset.title': '确认重置当前用户密码',
+  'organization.user.reset.content': '{loginName}用户的当前密码将失效。如果您启用组织密码策略，将重置为组织默认密码，否则将重置为平台密码。',
   'organization.user.language': '语言',
   'organization.user.create': '创建用户',
   'organization.user.modify': '修改用户',
@@ -1311,6 +1393,15 @@ const zh_CN = {
   'organization.user.download.failed.detail': '点击下载失败详情',
   'organization.user.download.failed.error': '失败详情文件丢失，无法下载',
 
+  // 系统公告
+  'organization.announcement.header.title': '系统公告',
+  'organization.announcement.title': '组织"{name}"的系统公告',
+  'organization.announcement.description': '你可以在此编辑系统公告，并且指定时间发送到组织成员。',
+  'organization.announcement.content': '公告内容',
+  'organization.announcement.send-time': '发送时间',
+  'organization.announcement.sidebar.title': '添加公告',
+  'organization.announcement.sidebar.title.detail': '查看公告',
+
   // 项目层
   // 项目信息
   'project.info.disable.title': '停用项目',
@@ -1330,12 +1421,16 @@ const zh_CN = {
   'user.userinfo.avatar.success': '头像上传成功，请点击保存。',
   'user.userinfo.loginname': '登录名',
   'user.userinfo.name.require.msg': '请输入用户名',
+  'user.userinfo.source': '认证来源',
+  'user.userinfo.ldap': 'LDAP用户',
+  'user.userinfo.notldap': '非LDAP用户',
+  'user.userinfo.account.info': '账号信息',
   'user.userinfo.name': '用户名',
-  'user.userinfo.email': '邮箱',
+  'user.userinfo.email': '邮箱地址',
   'user.userinfo.email.require.msg': '请输入邮箱',
   'user.userinfo.email.pattern.msg': '请输入正确的邮箱',
   'user.userinfo.email.used.msg': '该邮箱已被使用，请输入其他邮箱',
-  'user.userinfo.phone': '手机',
+  'user.userinfo.phone': '手机号码',
   'user.userinfo.phone.pattern.msg': '请输入正确的手机号',
   'user.userinfo.language': '语言',
   'user.userinfo.language.zhcn': '简体中文',
@@ -1345,6 +1440,10 @@ const zh_CN = {
   'user.userinfo.timezone.est': 'America',
   'user.userinfo.timezone.ctt': '中国',
   'user.userinfo.timezone.require.msg': '请选择时区',
+  'user.userinfo.orginfo': '组织信息',
+  'user.userinfo.org.name': '组织名称',
+  'user.userinfo.org.code': '组织编码',
+
 
   // 修改密码
   'user.changepwd.twopwd.pattern.msg': '两次密码输入不一致',
@@ -1390,6 +1489,17 @@ const zh_CN = {
   'user.usermsg.nomore': '暂无更多消息',
   'user.usermsg.load-more': '加载更多',
 
+  // 授权管理
+  'user.token-manager.header.title': '授权管理',
+  'user.token-manager.title': 'ACCESS-TOKEN管理',
+  'user.token-manager.description': 'ACCESS-TOKEN是您访问平台的密钥。您可以在此查看和管理您的密钥。',
+  'user.token-manager.client-id': '客户端名称',
+  'user.token-manager.redirect-uri': '重定向地址',
+  'user.token-manager.create-time': '创建时间',
+  'user.token-manager.expiration-time': '失效时间',
+  'user.token-manager.remove.title': '移除access-token',
+  'user.token-manager.remove.content': '确定要移除{name}吗？移除后您将无法获取该token的授权信息。',
+
   // 角色分配
   'global.memberrole.header.title': '平台角色分配',
   'global.memberrole.upload.title': '在平台"{name}"中导入角色',
@@ -1434,11 +1544,28 @@ const zh_CN = {
   'memberrole.remove.all.client.content': '确认移除客户端"{name}"下的所有角色?',
   'memberrole.remove.client.content': '确认移除客户端"{member}"的角色"{role}"?',
 
+  // 事务实例
+  'saga-instance.overview': '事务实例状态总览',
+  'saga-instance.code': '实例状态总览',
+  'saga-instance.saga.instance': '事务实例',
+  'saga-instance.task.retry-count': '重试次数',
+
 
   // 角色标签
   'memberlabel.member.disabled.msg': '用户已被停用，无法给此用户分配角色，请先启用此用户',
   'memberlabel.member.notexist.msg': '不存在此用户，请输入正确的登录名',
   'memberlabel.member.require.msg': '必须至少输入一个成员',
+
+  // 系统公告
+  'announcement.waiting': '未开始',
+  'announcement.completed': '完成',
+  'announcement.sending': '发送中',
+  'announcement.failed': '失败',
+  'announcement.add': '添加公告',
+  'announcement.detail': '查看详情',
+  'announcement.content.required': '公告内容不可为空',
+  'announcement.delete.title': '删除公告',
+  'announcement.delete.content': '确定要删除此系统公告？',
 
   // Upload
   'download.template': '下载',

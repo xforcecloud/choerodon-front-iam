@@ -29,7 +29,7 @@
       color: #d3d3d3;
     }
 
-    .icon-state_over {
+    .icon-state_over, .icon-watch_later {
       color: #ffb100;
     }
 
@@ -38,7 +38,11 @@
     }
 
     .icon-timelapse {
-      color: #1f78d1;
+      color: #4f90fe;
+    }
+
+    .icon-timer {
+      color: #ffb100;
     }
   }
 }
