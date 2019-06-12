@@ -554,6 +554,7 @@ const zh_CN = {
   baseon: '基于此创建',
   selectall: '全选',
   selectnone: '取消全选',
+  required: '必须',
 
   // status
   // success
@@ -585,6 +586,40 @@ const zh_CN = {
 
   // finished
   finished: '结束',
+
+  'organization.loadblance.name.max.size': '名称最多只允许20个字符.',
+  'organization.loadblance.name.style': '名称只可以是小写英文和"-".',
+  'organization.loadblance.name.reject': '名称已经被占用.',
+  'organization.loadblance.limit': '不能再创建,已经达到当前组织的上限.',
+  'organization.loadblance.title': '负载均衡',
+  'organization.loadblance.description': '在这里可以为组织下的集群环境创建负载均衡,最多只允许9个.',
+  'organization.loadblance.create.title': '创建负载均衡',
+  'organization.loadblance.create.description': '请在下面填上相关内容',
+  // 负载均衡
+  'organization.loadblance.deployStatus': '部署状态',
+  'organization.loadblance.envCode.exist.msg': '环境编码编码已存在，请输入其他环境编码',
+  'organization.loadblance.envCode.require.msg': '请输入环境编码',
+  'organization.loadblance.envCode.pattern.msg': '编码只能由小写字母、数字、"-"组成，且以小写字母开头，不能以"-"结尾且不能连续出现两个"-"',
+  'organization.loadblance.envCode.length.msg': '环境编码不能超过14个字符',
+  'organization.loadblance.create': '创建负载均衡',
+  'organization.loadblance.modify': '修改负载均衡',
+  'organization.loadblance.name.require.msg': '请输入名称',
+  'organization.loadblance.status.enabled': '启用状态',
+  'organization.loadblance.header.title': '负载均衡',
+  'organization.loadblance.type.empty': '无项目类型',
+  'organization.loadblance.empty': '无',
+  'organization.loadblance.ports': '负载均衡端口',
+  'organization.loadblance.port.name': '负载均衡端口名称,不需要填写系统自动生成',
+  'organization.loadblance.port.protocol': '负载均衡端口协议',
+  'organization.loadblance.port.port': '负载均衡监听端口',
+  'organization.loadblance.port.targetPort': '负载均衡转发后端应用端口',
+  'organization.loadblance.port.https.cert.id': '如果是https 协议需要提供证书 id.',
+  'organization.loadblance.name': '负载均衡名称',
+  'organization.loadblance.clusterId': '集群标识',
+  'organization.loadblance.envCode': '环境编码',
+  'organization.loadblance.cloudSlbFlag': '云供应商提供的 SLB标识',
+  'organization.loadblance.cloudSupplierName': '云供应商名称',
+  'organization.loadblance.appId': '应用实例',
 
   // 统一字段
   name: '名称',
@@ -1111,7 +1146,7 @@ const zh_CN = {
   'global.dashboard-setting.card.title': '卡片标题',
   'global.dashboard-setting.card.title.required': '请输入卡片标题',
 
-  //tcp ingress SystemSettingStore
+  // tcp ingress SystemSettingStore
   'global.ingress-setting.header': 'TCP/UDP Ingress 设置',
   'global.ingress-setting.title': 'TCP/UDP Ingress 设置',
   'global.ingress-setting.description': '提供对外长连接',
@@ -1129,17 +1164,17 @@ const zh_CN = {
   'global.ingress-setting.type': '网络类型',
   'global.ingress-setting.success': '操作成功',
 
-  //istio header
+  // istio header
   'global.istio-setting.header': 'ISTIO模板配置',
   'global.istio-setting.task.title': 'ISTIO任务列表',
-  'global.istio-setting.task.description' :'ISTIO请求的任务列表',
+  'global.istio-setting.task.description': 'ISTIO请求的任务列表',
   'global.istio-setting.task': 'ISTIO任务列表',
   'tplId': '模板编号',
   'kind': '模板类型',
   'namespace': '命名空间',
   'createTime': '创建时间',
   'modifyTime': '修改时间',
-  'configVal': '配置参数' ,
+  'configVal': '配置参数',
 
   // 系统设置
   'global.system-setting.header': '系统设置',
@@ -1169,19 +1204,17 @@ const zh_CN = {
   'global.system-setting.reset.confirm.content': '确定要重置系统自定义配置吗？您的自定义配置将被删除。',
   'global.system-setting.reset': '重置成功',
 
-
-
-  "admin.cluster.owner.title" : "自定义",
-  "admin.cluster.owner.description": "自定义",
-  "owner.org": "组织",
-  "owner.pro": "项目",
-  "owner.port": "端口",
-  "owner.env": "环境",
-  "owner.net": "网络",
-  "owner.org.none": "未搜索到组织",
-  "owner.pro.none": "未搜索到项目",
-  "owner.env.none": "未搜索到环境",
-  "owner.net.none": "未搜索到网络",
+  'admin.cluster.owner.title': '自定义',
+  'admin.cluster.owner.description': '自定义',
+  'owner.org': '组织',
+  'owner.pro': '项目',
+  'owner.port': '端口',
+  'owner.env': '环境',
+  'owner.net': '网络',
+  'owner.org.none': '未搜索到组织',
+  'owner.pro.none': '未搜索到项目',
+  'owner.env.none': '未搜索到环境',
+  'owner.net.none': '未搜索到网络',
 
   // 组织层
   // 项目管理
@@ -1543,6 +1576,9 @@ const zh_CN = {
   'register.organization.register.success': '您的组织{name}注册成功',
   'register.organization.register.failed': '注册失败',
   'register.organization.login': '直接登录',
+
+  // 云供应商名称
+  'cloud.supplier.aliyun': '阿里云',
 
   // page
   ...pageDetail,
