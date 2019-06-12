@@ -8,8 +8,8 @@ const config = {
   },
   cookieServer: '', //  子域名token共享
   server: 'http://api.xcloud.xforceplus.com',
-  fileServer: 'http://minio.choerodon.xforceplus.com',
-  webSocketServer: 'ws://notify.choerodon.xforceplus.com',
+  fileServer: 'http://minio.xcloud.xforceplus.com',
+  webSocketServer: 'ws://notify.xcloud.xforceplus.com',
   dashboard: {
     iam: {
       components: 'src/app/iam/dashboard/*',
