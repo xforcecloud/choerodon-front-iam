@@ -4,7 +4,7 @@ const config = {
   titlename: 'Choerodon | 企业数字化服务平台', //  项目页面的title名称
   favicon: 'favicon.ico', //  项目页面的icon图片名称
   theme: {
-    'primary-color': '#3F51B5',
+    'primary-color': '#00896C',
   },
   cookieServer: '', //  子域名token共享
   server: 'http://api.xcloud.xforceplus.com',
