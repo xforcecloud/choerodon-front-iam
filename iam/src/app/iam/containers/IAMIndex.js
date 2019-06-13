@@ -42,7 +42,6 @@ const ldap = asyncRouter(() => import('./organization/ldap'));
 const passwordPolicy = asyncRouter(() => import('./organization/password-policy'));
 const project = asyncRouter(() => import('./organization/project'));
 const user = asyncRouter(() => import('./organization/user'));
-const loadblance = asyncRouter(() => import('./organization/load-blance'));
 
 // project
 const projectSetting = asyncRouter(() => import('./project/project-setting'));
@@ -103,7 +102,6 @@ class IAMIndex extends React.Component {
           <Route path={`${match.url}/receive-setting`} component={receiveSetting} />
           <Route path={`${match.url}/user-info`} component={userInfo} />
           <Route path={`${match.url}/user-msg`} component={userMsg} />
-          <Route path={`${match.url}/load-blance`} component={loadblance} />
           <Route path="*" component={nomatch} />
         </Switch>
       </IntlProviderAsync>
