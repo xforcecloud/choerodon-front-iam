@@ -1,6 +1,6 @@
 /**
  *create by mading on 2018/4/2
  */
-import Loadblance from './LoadblanceStore';
+import LoadblanceStore from './LoadblanceStore';
 
-export default Loadblance;
+export default LoadblanceStore;
